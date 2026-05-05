@@ -40,3 +40,53 @@ it('resolves unit enums', function () {
     expect($resolution->type)->toBe('UnitStatus')
         ->and($resolution->enum?->definition)->toBe("'Alpha' | 'Beta'");
 });
+
+it('resolves custom cast with toTypeScript method', function () {
+    $resolver = new TypeResolver('string');
+    $resolution = $resolver->resolve(\Based\EloquentTypegen\Tests\Fixtures\Casts\MoneyCast::class);
+
+    expect($resolution->type)->toBe('{ amount: number; currency: string }')
+        ->and($resolution->enum)->toBeNull();
+});
+
+it('resolves custom type map from config', function () {
+    $customMap = [
+        'App\\Casts\\CustomMoney' => '{ amount: number; currency: string }',
+    ];
+    $resolver = new TypeResolver('string', $customMap);
+
+    expect($resolver->resolve('App\\Casts\\CustomMoney')->type)->toBe('{ amount: number; currency: string }');
+});
+
+it('resolves AsCollection cast', function () {
+    $resolver = new TypeResolver('string');
+    expect($resolver->resolve('AsCollection')->type)->toBe('unknown[]');
+});
+
+it('resolves AsArrayObject cast', function () {
+    $resolver = new TypeResolver('string');
+    expect($resolver->resolve('AsArrayObject')->type)->toBe('unknown[]');
+});
+
+it('resolves AsStringable cast', function () {
+    $resolver = new TypeResolver('string');
+    expect($resolver->resolve('AsStringable')->type)->toBe('string');
+});
+
+it('resolves AsEnumCollection cast', function () {
+    $resolver = new TypeResolver('string');
+    $resolution = $resolver->resolve('AsEnumCollection:' . StringStatus::class);
+
+    expect($resolution->type)->toBe('StringStatus[]')
+        ->and($resolution->enum?->definition)->toBe("'draft' | 'published'");
+});
+
+it('resolves decimal with precision', function () {
+    $resolver = new TypeResolver('string');
+    expect($resolver->resolve('decimal:2')->type)->toBe('number');
+});
+
+it('returns unknown for unhandled cast types', function () {
+    $resolver = new TypeResolver('string');
+    expect($resolver->resolve('SomeUnknownCast')->type)->toBe('unknown');
+});

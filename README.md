@@ -589,7 +589,7 @@ Yes, fully. Add `lang="ts"` to your `<script>` tag. SvelteKit projects ship with
 Contributions are welcome. To get started locally:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/eloquent-typegen.git
+git clone https://github.com/VincentNdegwa/eloquent-typegen.git
 cd eloquent-typegen
 
 composer install
