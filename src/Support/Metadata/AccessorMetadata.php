@@ -8,6 +8,5 @@ class AccessorMetadata
 {
     public function __construct(
         public string $name,
-    ) {
-    }
+    ) {}
 }

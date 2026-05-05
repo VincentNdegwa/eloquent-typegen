@@ -11,13 +11,13 @@ class EloquentTypegenServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__ . '/../config/typegen.php', 'typegen');
+        $this->mergeConfigFrom(__DIR__.'/../config/typegen.php', 'typegen');
     }
 
     public function boot(): void
     {
         $this->publishes([
-            __DIR__ . '/../config/typegen.php' => config_path('typegen.php'),
+            __DIR__.'/../config/typegen.php' => config_path('typegen.php'),
         ], 'typegen-config');
 
         if ($this->app->runningInConsole()) {

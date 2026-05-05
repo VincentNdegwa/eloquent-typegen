@@ -11,6 +11,5 @@ class TypeResolution
     public function __construct(
         public string $type,
         public ?EnumMetadata $enum = null,
-    ) {
-    }
+    ) {}
 }

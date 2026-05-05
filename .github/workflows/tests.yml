@@ -21,7 +21,8 @@ jobs:
             laravel: "12.*"
           - php: "8.3"
             laravel: "13.*"
-            testbench: "dev-master"
+            testbench: "^11.0"
+            pest-plugin: "dev-master"
 
     name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }}
 
@@ -40,6 +41,9 @@ jobs:
           composer require "laravel/framework:${{ matrix.laravel }}" --no-update
           if [ "${{ matrix.testbench }}" != "" ]; then
             composer require "orchestra/testbench:${{ matrix.testbench }}" --no-update
+          fi
+          if [ "${{ matrix.pest-plugin }}" != "" ]; then
+            composer require "pestphp/pest-plugin-laravel:${{ matrix.pest-plugin }}" --no-update
           fi
           composer update --prefer-dist --no-interaction
 

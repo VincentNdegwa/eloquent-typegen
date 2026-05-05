@@ -22,6 +22,5 @@ class ModelMetadata
         public string $className,
         public string $interfaceName,
         public string $fileName,
-    ) {
-    }
+    ) {}
 }

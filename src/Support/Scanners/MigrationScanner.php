@@ -9,9 +9,8 @@ use Illuminate\Filesystem\Filesystem;
 class MigrationScanner
 {
     public function __construct(
-        private readonly Filesystem $filesystem = new Filesystem(),
-    ) {
-    }
+        private readonly Filesystem $filesystem = new Filesystem,
+    ) {}
 
     /**
      * @return array<string, array<string, bool>>
@@ -33,7 +32,7 @@ class MigrationScanner
     }
 
     /**
-     * @param array<string, array<string, bool>> $nullable
+     * @param  array<string, array<string, bool>>  $nullable
      */
     private function scanContent(string $content, array &$nullable): void
     {
@@ -46,12 +45,14 @@ class MigrationScanner
             if (preg_match("/Schema::create\(['\"]([^'\"]+)['\"]/", $line, $matches)) {
                 $currentTable = $matches[1];
                 $nullable[$currentTable] ??= [];
+
                 continue;
             }
 
             if (preg_match("/Schema::table\(['\"]([^'\"]+)['\"]/", $line, $matches)) {
                 $currentTable = $matches[1];
                 $nullable[$currentTable] ??= [];
+
                 continue;
             }
 

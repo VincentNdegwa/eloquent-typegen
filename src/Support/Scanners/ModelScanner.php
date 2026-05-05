@@ -31,17 +31,22 @@ use ReflectionClass;
 class ModelScanner
 {
     private readonly Filesystem $filesystem;
+
     private readonly TypeResolver $typeResolver;
+
     private readonly NullabilityResolver $nullabilityResolver;
+
     private readonly bool $includeVendorModels;
+
     /** @var string[] */
     private readonly array $additionalModels;
+
     /** @var array<string, true> */
     private array $relatedClasses = [];
 
     public function __construct()
     {
-        $this->filesystem = new Filesystem();
+        $this->filesystem = new Filesystem;
         $this->typeResolver = new TypeResolver(
             (string) config('typegen.date_type', 'string'),
             (array) config('typegen.custom_type_map', []),
@@ -55,7 +60,7 @@ class ModelScanner
     }
 
     /**
-     * @param string[] $onlyModels
+     * @param  string[]  $onlyModels
      * @return ModelMetadata[]
      */
     public function scan(array $onlyModels = []): array
@@ -89,10 +94,10 @@ class ModelScanner
     }
 
     /**
-     * @param string[] $onlyModels
-     * @param string[] $excluded
-     * @param ModelMetadata[] $results
-     * @param array<string, true> $seen
+     * @param  string[]  $onlyModels
+     * @param  string[]  $excluded
+     * @param  ModelMetadata[]  $results
+     * @param  array<string, true>  $seen
      */
     private function addModelByClass(
         string $class,
@@ -135,10 +140,10 @@ class ModelScanner
     }
 
     /**
-     * @param string[] $onlyModels
-     * @param string[] $excluded
-     * @param ModelMetadata[] $results
-     * @param array<string, true> $seen
+     * @param  string[]  $onlyModels
+     * @param  string[]  $excluded
+     * @param  ModelMetadata[]  $results
+     * @param  array<string, true>  $seen
      */
     private function includeAdditionalModels(array $onlyModels, array $excluded, array &$results, array &$seen): void
     {
@@ -282,6 +287,7 @@ class ModelScanner
 
             if ($relation instanceof MorphTo) {
                 $metadata->relations[] = new RelationMetadata($fieldName, 'unknown');
+
                 continue;
             }
 
@@ -291,6 +297,7 @@ class ModelScanner
 
             if ($relation instanceof HasOne || $relation instanceof BelongsTo || $relation instanceof MorphOne) {
                 $metadata->relations[] = new RelationMetadata($fieldName, $relatedType);
+
                 continue;
             }
 
@@ -301,7 +308,7 @@ class ModelScanner
                 $relation instanceof MorphToMany ||
                 $relation instanceof HasManyThrough
             ) {
-                $metadata->relations[] = new RelationMetadata($fieldName, $relatedType . '[]');
+                $metadata->relations[] = new RelationMetadata($fieldName, $relatedType.'[]');
             }
         }
     }
@@ -324,15 +331,15 @@ class ModelScanner
             return null;
         }
 
-        $relative = Str::after($filePath, $appPath . DIRECTORY_SEPARATOR);
+        $relative = Str::after($filePath, $appPath.DIRECTORY_SEPARATOR);
         $relative = Str::replaceLast('.php', '', $relative);
         $relative = str_replace(DIRECTORY_SEPARATOR, '\\', $relative);
 
-        return $namespace . $relative;
+        return $namespace.$relative;
     }
 
     /**
-     * @param string[] $onlyModels
+     * @param  string[]  $onlyModels
      */
     private function matchesModelFilter(string $class, array $onlyModels): bool
     {

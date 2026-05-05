@@ -13,9 +13,8 @@ class NullabilityResolver
 
     public function __construct(
         private readonly bool $readMigrations,
-        private readonly MigrationScanner $scanner = new MigrationScanner(),
-    ) {
-    }
+        private readonly MigrationScanner $scanner = new MigrationScanner,
+    ) {}
 
     public function bootstrap(): void
     {

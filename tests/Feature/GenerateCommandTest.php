@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Illuminate\Filesystem\Filesystem;
 
 it('generates typescript files for a model', function () {
-    $filesystem = new Filesystem();
+    $filesystem = new Filesystem;
 
     $filesystem->ensureDirectoryExists(app_path('Models'));
     $filesystem->ensureDirectoryExists(base_path('database/migrations'));

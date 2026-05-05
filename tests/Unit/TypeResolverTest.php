@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Based\EloquentTypegen\Support\Resolvers\TypeResolver;
+use Based\EloquentTypegen\Tests\Fixtures\Casts\MoneyCast;
 use Based\EloquentTypegen\Tests\Fixtures\Enums\IntStatus;
 use Based\EloquentTypegen\Tests\Fixtures\Enums\StringStatus;
 use Based\EloquentTypegen\Tests\Fixtures\Enums\UnitStatus;
@@ -43,7 +44,7 @@ it('resolves unit enums', function () {
 
 it('resolves custom cast with toTypeScript method', function () {
     $resolver = new TypeResolver('string');
-    $resolution = $resolver->resolve(\Based\EloquentTypegen\Tests\Fixtures\Casts\MoneyCast::class);
+    $resolution = $resolver->resolve(MoneyCast::class);
 
     expect($resolution->type)->toBe('{ amount: number; currency: string }')
         ->and($resolution->enum)->toBeNull();
@@ -75,7 +76,7 @@ it('resolves AsStringable cast', function () {
 
 it('resolves AsEnumCollection cast', function () {
     $resolver = new TypeResolver('string');
-    $resolution = $resolver->resolve('AsEnumCollection:' . StringStatus::class);
+    $resolution = $resolver->resolve('AsEnumCollection:'.StringStatus::class);
 
     expect($resolution->type)->toBe('StringStatus[]')
         ->and($resolution->enum?->definition)->toBe("'draft' | 'published'");

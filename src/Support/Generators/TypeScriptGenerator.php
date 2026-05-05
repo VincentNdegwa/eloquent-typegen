@@ -12,11 +12,10 @@ class TypeScriptGenerator
     public function __construct(
         private readonly string $outputPath,
         private readonly bool $includeRelations,
-    ) {
-    }
+    ) {}
 
     /**
-     * @param ModelMetadata[] $models
+     * @param  ModelMetadata[]  $models
      * @return array<string, string>
      */
     public function generate(array $models): array
@@ -26,23 +25,23 @@ class TypeScriptGenerator
         $basePath = $this->resolveOutputPath($this->outputPath);
 
         foreach ($models as $model) {
-            $filePath = $basePath . '/' . $model->fileName;
+            $filePath = $basePath.'/'.$model->fileName;
             $files[$filePath] = $this->renderModel($model, $modelMap);
         }
 
         if ((bool) config('typegen.generate_helpers', true)) {
-            $files[$basePath . '/model-helpers.ts'] = $this->renderHelpers();
+            $files[$basePath.'/model-helpers.ts'] = $this->renderHelpers();
         }
 
         if ((bool) config('typegen.generate_index', true)) {
-            $files[$basePath . '/index.ts'] = $this->renderIndex($models);
+            $files[$basePath.'/index.ts'] = $this->renderIndex($models);
         }
 
         return $files;
     }
 
     /**
-     * @param ModelMetadata[] $models
+     * @param  ModelMetadata[]  $models
      * @return array<string, string>
      */
     private function buildModelMap(array $models): array
@@ -51,6 +50,7 @@ class TypeScriptGenerator
         foreach ($models as $model) {
             $map[$model->interfaceName] = Str::replaceLast('.ts', '', $model->fileName);
         }
+
         return $map;
     }
 
@@ -64,7 +64,7 @@ class TypeScriptGenerator
     }
 
     /**
-     * @param array<string, string> $modelMap
+     * @param  array<string, string>  $modelMap
      */
     private function renderModel(ModelMetadata $model, array $modelMap): string
     {
@@ -136,7 +136,7 @@ class TypeScriptGenerator
     }
 
     /**
-     * @param array<string, string> $modelMap
+     * @param  array<string, string>  $modelMap
      */
     private function collectImports(ModelMetadata $model, array $modelMap): array
     {
@@ -174,7 +174,7 @@ class TypeScriptGenerator
 
         foreach ($grouped as $file => $types) {
             sort($types);
-            $imports[] = "import type { " . implode(', ', $types) . " } from './{$file}';";
+            $imports[] = 'import type { '.implode(', ', $types)." } from './{$file}';";
         }
 
         return $imports;
@@ -222,11 +222,12 @@ class TypeScriptGenerator
     }
 
     /**
-     * @param string[] $fields
+     * @param  string[]  $fields
      */
     private function formatOmitList(array $fields): string
     {
         $quoted = array_map(static fn (string $field) => "'{$field}'", $fields);
+
         return implode(' | ', $quoted);
     }
 
@@ -264,7 +265,7 @@ class TypeScriptGenerator
     }
 
     /**
-     * @param ModelMetadata[] $models
+     * @param  ModelMetadata[]  $models
      */
     private function renderIndex(array $models): string
     {

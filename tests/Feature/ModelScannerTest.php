@@ -6,7 +6,7 @@ use Based\EloquentTypegen\Support\Scanners\ModelScanner;
 use Illuminate\Filesystem\Filesystem;
 
 it('discovers models and relationships', function () {
-    $filesystem = new Filesystem();
+    $filesystem = new Filesystem;
 
     $filesystem->ensureDirectoryExists(app_path('Models'));
 
@@ -37,7 +37,7 @@ class ChildModel extends \Illuminate\Database\Eloquent\Model
 }
 PHP);
 
-    $scanner = new ModelScanner();
+    $scanner = new ModelScanner;
     $models = $scanner->scan();
 
     $parent = collect($models)->first(fn ($model) => $model->interfaceName === 'ParentModel');
@@ -49,9 +49,8 @@ PHP);
     $filesystem->delete(app_path('Models/ChildModel.php'));
 });
 
-
 it('detects different relationship types', function () {
-    $filesystem = new Filesystem();
+    $filesystem = new Filesystem;
 
     $filesystem->ensureDirectoryExists(app_path('Models'));
 
@@ -144,7 +143,7 @@ class Role extends Model
 }
 PHP);
 
-    $scanner = new ModelScanner();
+    $scanner = new ModelScanner;
     $models = $scanner->scan();
 
     $user = collect($models)->first(fn ($model) => $model->interfaceName === 'User');

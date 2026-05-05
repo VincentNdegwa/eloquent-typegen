@@ -6,8 +6,8 @@ use Based\EloquentTypegen\Support\Scanners\MigrationScanner;
 use Illuminate\Filesystem\Filesystem;
 
 it('detects nullable columns in migrations', function () {
-    $filesystem = new Filesystem();
-    $dir = sys_get_temp_dir() . '/eloquent-typegen-migrations-' . uniqid();
+    $filesystem = new Filesystem;
+    $dir = sys_get_temp_dir().'/eloquent-typegen-migrations-'.uniqid();
     $filesystem->makeDirectory($dir, 0755, true);
 
     $migration = <<<'PHP'
@@ -25,7 +25,7 @@ Schema::create('notes', function (Blueprint $table) {
 });
 PHP;
 
-    $filesystem->put($dir . '/2026_05_05_000000_create_notes_table.php', $migration);
+    $filesystem->put($dir.'/2026_05_05_000000_create_notes_table.php', $migration);
 
     $scanner = new MigrationScanner($filesystem);
     $result = $scanner->scan($dir);

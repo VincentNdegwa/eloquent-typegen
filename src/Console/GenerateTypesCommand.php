@@ -22,11 +22,12 @@ class GenerateTypesCommand extends Command
 
     public function handle(): int
     {
-        $scanner = new ModelScanner();
+        $scanner = new ModelScanner;
         $models = $scanner->scan($this->option('model'));
 
         if (empty($models)) {
             $this->warn('No models matched the given criteria.');
+
             return self::SUCCESS;
         }
 
@@ -50,7 +51,7 @@ class GenerateTypesCommand extends Command
             return self::SUCCESS;
         }
 
-        $filesystem = new Filesystem();
+        $filesystem = new Filesystem;
 
         foreach ($files as $path => $content) {
             $directory = Str::beforeLast($path, '/');

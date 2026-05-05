@@ -15,7 +15,7 @@ class NameHelper
 
     public static function modelToFileName(string $className): string
     {
-        return Str::kebab(class_basename($className)) . '.ts';
+        return Str::kebab(class_basename($className)).'.ts';
     }
 
     public static function accessorToField(string $methodName): string

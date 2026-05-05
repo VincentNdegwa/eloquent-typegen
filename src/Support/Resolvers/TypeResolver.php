@@ -13,8 +13,7 @@ class TypeResolver
     public function __construct(
         private readonly string $dateType,
         private readonly array $customTypeMap = [],
-    ) {
-    }
+    ) {}
 
     public function resolve(?string $castType): TypeResolution
     {
@@ -135,7 +134,8 @@ class TypeResolver
 
         if (class_exists($enumClass) && (is_subclass_of($enumClass, BackedEnum::class) || is_subclass_of($enumClass, UnitEnum::class))) {
             $resolution = $this->resolveEnum($enumClass);
-            return new TypeResolution($resolution->type . '[]', $resolution->enum);
+
+            return new TypeResolution($resolution->type.'[]', $resolution->enum);
         }
 
         return new TypeResolution('unknown[]');
@@ -148,6 +148,7 @@ class TypeResolver
         }
 
         $escaped = addslashes($value);
+
         return "'{$escaped}'";
     }
 }

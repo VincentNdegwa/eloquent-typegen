@@ -12,6 +12,5 @@ class FieldMetadata
         public bool $nullable = false,
         public bool $readonly = false,
         public bool $optional = false,
-    ) {
-    }
+    ) {}
 }
