@@ -207,6 +207,19 @@ class ModelScanner
             }
 
             $resolution = $this->typeResolver->resolve(is_string($castType) ? $castType : null);
+
+            // When there is no cast and the type resolver returns unknown, fall back
+            // to the column type inferred from the migration definition. This handles
+            // fields like workspace_id (unsignedBigInteger → number), title (string →
+            // string), quote_uuid (uuid → string), etc. that the model doesn't cast
+            // explicitly but whose types are clearly defined in the migration.
+            if ($resolution->type === 'unknown' && $castType === null && config('typegen.infer_types_from_migrations', true)) {
+                $migrationType = $this->nullabilityResolver->columnType($model->getTable(), (string) $field);
+                if ($migrationType !== null) {
+                    $resolution = $this->typeResolver->resolve($migrationType);
+                }
+            }
+
             if ($resolution->enum !== null) {
                 $this->addEnum($metadata, $resolution->enum);
             }

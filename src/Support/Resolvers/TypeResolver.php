@@ -71,6 +71,8 @@ class TypeResolver
             'jsonb' => 'Record<string, unknown>',
             'object' => 'Record<string, unknown>',
             'collection' => 'unknown[]',
+            // Migration-scanner internal tokens (not standard Laravel casts)
+            'number' => 'number',
         ];
 
         if (array_key_exists($normalized, $scalarMap)) {

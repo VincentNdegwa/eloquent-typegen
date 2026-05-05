@@ -14,4 +14,6 @@ return [
     'include_vendor_models' => true,
     'additional_models' => [],
     'read_migrations' => true,
+    'infer_types_from_migrations' => true,
+    'migration_type_map' => [],
 ];
