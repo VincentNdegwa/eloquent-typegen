@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace VincentNdegwa\EloquentTypegen\Console;
 
-use VincentNdegwa\EloquentTypegen\Support\Generators\TypeScriptGenerator;
-use VincentNdegwa\EloquentTypegen\Support\Scanners\ModelScanner;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
+use VincentNdegwa\EloquentTypegen\Support\Generators\TypeScriptGenerator;
+use VincentNdegwa\EloquentTypegen\Support\Scanners\ModelScanner;
 
 class GenerateTypesCommand extends Command
 {

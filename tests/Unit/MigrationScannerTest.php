@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use VincentNdegwa\EloquentTypegen\Support\Scanners\MigrationScanner;
 use Illuminate\Filesystem\Filesystem;
+use VincentNdegwa\EloquentTypegen\Support\Scanners\MigrationScanner;
 
 it('detects nullable columns in migrations', function () {
     $filesystem = new Filesystem;

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace VincentNdegwa\EloquentTypegen\Support\Resolvers;
 
 use BackedEnum;
-use VincentNdegwa\EloquentTypegen\Support\Metadata\EnumMetadata;
 use UnitEnum;
+use VincentNdegwa\EloquentTypegen\Support\Metadata\EnumMetadata;
 
 class TypeResolver
 {

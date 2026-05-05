@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace VincentNdegwa\EloquentTypegen\Support\Generators;
 
-use VincentNdegwa\EloquentTypegen\Support\Metadata\ModelMetadata;
 use Illuminate\Support\Str;
+use VincentNdegwa\EloquentTypegen\Support\Metadata\ModelMetadata;
 
 class TypeScriptGenerator
 {

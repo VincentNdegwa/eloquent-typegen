@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace VincentNdegwa\EloquentTypegen\Tests;
 
-use VincentNdegwa\EloquentTypegen\EloquentTypegenServiceProvider;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
+use VincentNdegwa\EloquentTypegen\EloquentTypegenServiceProvider;
 
 abstract class TestCase extends OrchestraTestCase
 {

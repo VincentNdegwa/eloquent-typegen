@@ -4,14 +4,6 @@ declare(strict_types=1);
 
 namespace VincentNdegwa\EloquentTypegen\Support\Scanners;
 
-use VincentNdegwa\EloquentTypegen\Support\Helpers\NameHelper;
-use VincentNdegwa\EloquentTypegen\Support\Metadata\AccessorMetadata;
-use VincentNdegwa\EloquentTypegen\Support\Metadata\EnumMetadata;
-use VincentNdegwa\EloquentTypegen\Support\Metadata\FieldMetadata;
-use VincentNdegwa\EloquentTypegen\Support\Metadata\ModelMetadata;
-use VincentNdegwa\EloquentTypegen\Support\Metadata\RelationMetadata;
-use VincentNdegwa\EloquentTypegen\Support\Resolvers\NullabilityResolver;
-use VincentNdegwa\EloquentTypegen\Support\Resolvers\TypeResolver;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -26,6 +18,14 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 use ReflectionClass;
+use VincentNdegwa\EloquentTypegen\Support\Helpers\NameHelper;
+use VincentNdegwa\EloquentTypegen\Support\Metadata\AccessorMetadata;
+use VincentNdegwa\EloquentTypegen\Support\Metadata\EnumMetadata;
+use VincentNdegwa\EloquentTypegen\Support\Metadata\FieldMetadata;
+use VincentNdegwa\EloquentTypegen\Support\Metadata\ModelMetadata;
+use VincentNdegwa\EloquentTypegen\Support\Metadata\RelationMetadata;
+use VincentNdegwa\EloquentTypegen\Support\Resolvers\NullabilityResolver;
+use VincentNdegwa\EloquentTypegen\Support\Resolvers\TypeResolver;
 
 class ModelScanner
 {

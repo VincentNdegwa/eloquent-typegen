@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use VincentNdegwa\EloquentTypegen\Support\Scanners\ModelScanner;
 use Illuminate\Filesystem\Filesystem;
+use VincentNdegwa\EloquentTypegen\Support\Scanners\ModelScanner;
 
 it('discovers models and relationships', function () {
     $filesystem = new Filesystem;
