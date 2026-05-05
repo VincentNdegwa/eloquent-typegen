@@ -15,69 +15,71 @@ class MigrationScanner
      *
      * @var array<string, string>
      */
-    private const COLUMN_TYPE_MAP = [
-        // integers
-        'id' => 'number',
-        'tinyInteger' => 'number',
-        'smallInteger' => 'number',
-        'mediumInteger' => 'number',
-        'integer' => 'number',
-        'bigInteger' => 'number',
-        'unsignedTinyInteger' => 'number',
-        'unsignedSmallInteger' => 'number',
-        'unsignedMediumInteger' => 'number',
-        'unsignedInteger' => 'number',
-        'unsignedBigInteger' => 'number',
-        'increments' => 'number',
-        'tinyIncrements' => 'number',
-        'smallIncrements' => 'number',
-        'mediumIncrements' => 'number',
-        'bigIncrements' => 'number',
-        'foreignId' => 'number',
-        'foreignUuid' => 'string',
-        'foreignUlid' => 'string',
-        // floats / decimals
-        'float' => 'number',
-        'double' => 'number',
-        'decimal' => 'number',
-        'unsignedFloat' => 'number',
-        'unsignedDouble' => 'number',
-        'unsignedDecimal' => 'number',
-        // booleans
-        'boolean' => 'boolean',
-        // strings
-        'char' => 'string',
-        'string' => 'string',
-        'tinyText' => 'string',
-        'text' => 'string',
-        'mediumText' => 'string',
-        'longText' => 'string',
-        'uuid' => 'string',
-        'ulid' => 'string',
-        'ipAddress' => 'string',
-        'macAddress' => 'string',
-        'enum' => 'string',
-        'set' => 'string',
-        // dates
-        'date' => 'date',
-        'dateTime' => 'date',
-        'dateTimeTz' => 'date',
-        'time' => 'string',
-        'timeTz' => 'string',
-        'timestamp' => 'date',
-        'timestampTz' => 'date',
-        'year' => 'number',
-        // json
-        'json' => 'json',
-        'jsonb' => 'json',
-        // binary
-        'binary' => 'string',
-        'geometry' => 'string',
-    ];
+    private array $columnTypeMap;
 
     public function __construct(
         private readonly Filesystem $filesystem = new Filesystem,
-    ) {}
+    ) {
+        $this->columnTypeMap = config('typegen.migration_type_map', [
+            // integers
+            'id' => 'number',
+            'tinyInteger' => 'number',
+            'smallInteger' => 'number',
+            'mediumInteger' => 'number',
+            'integer' => 'number',
+            'bigInteger' => 'number',
+            'unsignedTinyInteger' => 'number',
+            'unsignedSmallInteger' => 'number',
+            'unsignedMediumInteger' => 'number',
+            'unsignedInteger' => 'number',
+            'unsignedBigInteger' => 'number',
+            'increments' => 'number',
+            'tinyIncrements' => 'number',
+            'smallIncrements' => 'number',
+            'mediumIncrements' => 'number',
+            'bigIncrements' => 'number',
+            'foreignId' => 'number',
+            'foreignUuid' => 'string',
+            'foreignUlid' => 'string',
+            // floats / decimals
+            'float' => 'number',
+            'double' => 'number',
+            'decimal' => 'number',
+            'unsignedFloat' => 'number',
+            'unsignedDouble' => 'number',
+            'unsignedDecimal' => 'number',
+            // booleans
+            'boolean' => 'boolean',
+            // strings
+            'char' => 'string',
+            'string' => 'string',
+            'tinyText' => 'string',
+            'text' => 'string',
+            'mediumText' => 'string',
+            'longText' => 'string',
+            'uuid' => 'string',
+            'ulid' => 'string',
+            'ipAddress' => 'string',
+            'macAddress' => 'string',
+            'enum' => 'string',
+            'set' => 'string',
+            // dates
+            'date' => 'date',
+            'dateTime' => 'date',
+            'dateTimeTz' => 'date',
+            'time' => 'string',
+            'timeTz' => 'string',
+            'timestamp' => 'date',
+            'timestampTz' => 'date',
+            'year' => 'number',
+            // json
+            'json' => 'json',
+            'jsonb' => 'json',
+            // binary
+            'binary' => 'string',
+            'geometry' => 'string',
+        ]);
+    }
 
     /**
      * Scan all migration files in the given directory (recursively).
@@ -187,8 +189,8 @@ class MigrationScanner
             }
 
             // Record the TypeScript-friendly type if we know this method
-            if (isset(self::COLUMN_TYPE_MAP[$method])) {
-                $columnTypes[$currentTable][$column] = self::COLUMN_TYPE_MAP[$method];
+            if (isset($this->columnTypeMap[$method])) {
+                $columnTypes[$currentTable][$column] = $this->columnTypeMap[$method];
             }
 
             // Record nullability

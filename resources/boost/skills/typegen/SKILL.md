@@ -47,7 +47,7 @@ php artisan vendor:publish --tag=typegen-config
 
 Config file: `config/typegen.php`
 
-## Configuration
+### Configuration
 
 Key options in `config/typegen.php`:
 
@@ -57,6 +57,8 @@ Key options in `config/typegen.php`:
 - `generate_helpers`: Generate model-helpers.ts with Nullable<T>, Paginated<T> (default: `true`)
 - `date_type`: How dates are typed - `string` or `Date` (default: `string`)
 - `read_migrations`: Parse migrations for nullable columns (default: `true`)
+- `infer_types_from_migrations`: Use migration column types as fallback when casts are missing (default: `true`)
+- `migration_type_map`: Override or add to the default migration type mappings
 - `include_relationships`: Include relationship methods (default: `true`)
 - `custom_type_map`: Override TypeScript types for specific cast classes
 
