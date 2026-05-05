@@ -23,7 +23,9 @@ class GenerateTypesCommand extends Command
     public function handle(): int
     {
         $scanner = new ModelScanner;
-        $models = $scanner->scan($this->option('model'));
+        /** @var array<string> */
+        $modelOption = $this->option('model');
+        $models = $scanner->scan($modelOption);
 
         if (empty($models)) {
             $this->warn('No models matched the given criteria.');
@@ -31,9 +33,10 @@ class GenerateTypesCommand extends Command
             return self::SUCCESS;
         }
 
-        $outputPath = $this->option('path')
-            ? (string) $this->option('path')
-            : (string) config('typegen.output_path');
+        $outputPathOption = $this->option('path');
+        $outputPath = (is_string($outputPathOption) && $outputPathOption !== '')
+            ? $outputPathOption
+            : (string) config('typegen.output_path', '');
 
         $includeRelations = ! $this->option('no-relations')
             && (bool) config('typegen.include_relationships');

@@ -43,7 +43,7 @@ PHP);
     $parent = collect($models)->first(fn ($model) => $model->interfaceName === 'ParentModel');
 
     expect($parent)->not->toBeNull()
-        ->and($parent->relations)->not->toBeEmpty();
+        ->and($parent?->relations)->not->toBeEmpty();
 
     $filesystem->delete(app_path('Models/ParentModel.php'));
     $filesystem->delete(app_path('Models/ChildModel.php'));
@@ -149,9 +149,9 @@ PHP);
     $user = collect($models)->first(fn ($model) => $model->interfaceName === 'User');
 
     expect($user)->not->toBeNull()
-        ->and($user->relations)->toHaveCount(4);
+        ->and($user?->relations)->toHaveCount(4);
 
-    $relationTypes = collect($user->relations)->pluck('type');
+    $relationTypes = collect($user?->relations)->pluck('type');
     expect($relationTypes)->toContain('Profile')
         ->toContain('Post[]')
         ->toContain('Organization')

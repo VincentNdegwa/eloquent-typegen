@@ -22,7 +22,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
@@ -212,9 +211,9 @@ class ModelScanner
                 $this->addEnum($metadata, $resolution->enum);
             }
 
-            $nullable = $this->nullabilityResolver->isNullable($model->getTable(), $field);
+            $nullable = $this->nullabilityResolver->isNullable($model->getTable(), (string) $field);
             $metadata->fields[] = new FieldMetadata(
-                $field,
+                (string) $field,
                 $resolution->type,
                 $nullable,
                 false,
@@ -228,6 +227,7 @@ class ModelScanner
         return $metadata;
     }
 
+    /** @param  array<string>  $hidden */
     private function addAccessors(ModelMetadata $metadata, Model $model, array $hidden): void
     {
         $reflection = new ReflectionClass($model);
@@ -239,7 +239,7 @@ class ModelScanner
             }
 
             $returnType = $method->getReturnType();
-            if ($returnType === null || $returnType->getName() !== Attribute::class) {
+            if ($returnType === null || ! $returnType instanceof \ReflectionNamedType || $returnType->getName() !== Attribute::class) {
                 continue;
             }
 
@@ -305,7 +305,6 @@ class ModelScanner
                 $relation instanceof HasMany ||
                 $relation instanceof BelongsToMany ||
                 $relation instanceof MorphMany ||
-                $relation instanceof MorphToMany ||
                 $relation instanceof HasManyThrough
             ) {
                 $metadata->relations[] = new RelationMetadata($fieldName, $relatedType.'[]');

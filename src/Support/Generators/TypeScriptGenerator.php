@@ -105,6 +105,7 @@ class TypeScriptGenerator
         return implode("\n", $lines);
     }
 
+    /** @return array<string> */
     private function renderFields(ModelMetadata $model): array
     {
         $lines = [];
@@ -137,6 +138,7 @@ class TypeScriptGenerator
 
     /**
      * @param  array<string, string>  $modelMap
+     * @return array<string>
      */
     private function collectImports(ModelMetadata $model, array $modelMap): array
     {

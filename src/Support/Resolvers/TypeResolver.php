@@ -12,6 +12,7 @@ class TypeResolver
 {
     public function __construct(
         private readonly string $dateType,
+        /** @var array<string, string> */
         private readonly array $customTypeMap = [],
     ) {}
 
