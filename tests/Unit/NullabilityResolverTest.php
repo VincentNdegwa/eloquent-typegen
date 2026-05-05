@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Based\EloquentTypegen\Support\Resolvers\NullabilityResolver;
+use VincentNdegwa\EloquentTypegen\Support\Resolvers\NullabilityResolver;
 
 it('combines migration data with special columns', function () {
     $resolver = new NullabilityResolver(false);

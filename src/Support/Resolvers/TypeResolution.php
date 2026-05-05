@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Based\EloquentTypegen\Support\Resolvers;
+namespace VincentNdegwa\EloquentTypegen\Support\Resolvers;
 
-use Based\EloquentTypegen\Support\Metadata\EnumMetadata;
+use VincentNdegwa\EloquentTypegen\Support\Metadata\EnumMetadata;
 
 class TypeResolution
 {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Based\EloquentTypegen\Support\Scanners;
+namespace VincentNdegwa\EloquentTypegen\Support\Scanners;
 
 use Illuminate\Filesystem\Filesystem;
 

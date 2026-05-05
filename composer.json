@@ -1,16 +1,16 @@
 {
-    "name": "based/eloquent-typegen",
+    "name": "vincentndegwa/eloquent-typegen",
     "description": "Generate TypeScript types from Eloquent models",
     "type": "library",
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Based\\EloquentTypegen\\": "src/"
+            "VincentNdegwa\\EloquentTypegen\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Based\\EloquentTypegen\\Tests\\": "tests/"
+            "VincentNdegwa\\EloquentTypegen\\Tests\\": "tests/"
         }
     },
     "authors": [
@@ -49,7 +49,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Based\\EloquentTypegen\\EloquentTypegenServiceProvider"
+                "VincentNdegwa\\EloquentTypegen\\EloquentTypegenServiceProvider"
             ]
         }
     },

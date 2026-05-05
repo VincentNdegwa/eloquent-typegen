@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use Based\EloquentTypegen\Support\Resolvers\TypeResolver;
-use Based\EloquentTypegen\Tests\Fixtures\Casts\MoneyCast;
-use Based\EloquentTypegen\Tests\Fixtures\Enums\IntStatus;
-use Based\EloquentTypegen\Tests\Fixtures\Enums\StringStatus;
-use Based\EloquentTypegen\Tests\Fixtures\Enums\UnitStatus;
+use VincentNdegwa\EloquentTypegen\Support\Resolvers\TypeResolver;
+use VincentNdegwa\EloquentTypegen\Tests\Fixtures\Casts\MoneyCast;
+use VincentNdegwa\EloquentTypegen\Tests\Fixtures\Enums\IntStatus;
+use VincentNdegwa\EloquentTypegen\Tests\Fixtures\Enums\StringStatus;
+use VincentNdegwa\EloquentTypegen\Tests\Fixtures\Enums\UnitStatus;
 
 it('resolves scalar casts', function () {
     $resolver = new TypeResolver('string');

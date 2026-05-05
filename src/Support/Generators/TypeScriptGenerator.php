@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Based\EloquentTypegen\Support\Generators;
+namespace VincentNdegwa\EloquentTypegen\Support\Generators;
 
-use Based\EloquentTypegen\Support\Metadata\ModelMetadata;
+use VincentNdegwa\EloquentTypegen\Support\Metadata\ModelMetadata;
 use Illuminate\Support\Str;
 
 class TypeScriptGenerator

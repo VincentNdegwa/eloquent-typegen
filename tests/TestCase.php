@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Based\EloquentTypegen\Tests;
+namespace VincentNdegwa\EloquentTypegen\Tests;
 
-use Based\EloquentTypegen\EloquentTypegenServiceProvider;
+use VincentNdegwa\EloquentTypegen\EloquentTypegenServiceProvider;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
 abstract class TestCase extends OrchestraTestCase

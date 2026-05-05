@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Based\EloquentTypegen\Support\Scanners\ModelScanner;
+use VincentNdegwa\EloquentTypegen\Support\Scanners\ModelScanner;
 use Illuminate\Filesystem\Filesystem;
 
 it('discovers models and relationships', function () {

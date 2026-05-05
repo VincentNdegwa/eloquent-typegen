@@ -2,6 +2,6 @@
 
 declare(strict_types=1);
 
-use Based\EloquentTypegen\Tests\TestCase;
+use VincentNdegwa\EloquentTypegen\Tests\TestCase;
 
 uses(TestCase::class)->in('Feature', 'Unit');

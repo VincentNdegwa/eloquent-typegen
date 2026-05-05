@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Based\EloquentTypegen\Support\Metadata;
+namespace VincentNdegwa\EloquentTypegen\Support\Metadata;
 
 class EnumMetadata
 {

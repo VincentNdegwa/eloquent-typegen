@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Based\EloquentTypegen\Support\Resolvers;
+namespace VincentNdegwa\EloquentTypegen\Support\Resolvers;
 
-use Based\EloquentTypegen\Support\Scanners\MigrationScanner;
+use VincentNdegwa\EloquentTypegen\Support\Scanners\MigrationScanner;
 
 class NullabilityResolver
 {

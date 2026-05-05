@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use Based\EloquentTypegen\Support\Generators\TypeScriptGenerator;
-use Based\EloquentTypegen\Support\Metadata\AccessorMetadata;
-use Based\EloquentTypegen\Support\Metadata\EnumMetadata;
-use Based\EloquentTypegen\Support\Metadata\FieldMetadata;
-use Based\EloquentTypegen\Support\Metadata\ModelMetadata;
-use Based\EloquentTypegen\Support\Metadata\RelationMetadata;
+use VincentNdegwa\EloquentTypegen\Support\Generators\TypeScriptGenerator;
+use VincentNdegwa\EloquentTypegen\Support\Metadata\AccessorMetadata;
+use VincentNdegwa\EloquentTypegen\Support\Metadata\EnumMetadata;
+use VincentNdegwa\EloquentTypegen\Support\Metadata\FieldMetadata;
+use VincentNdegwa\EloquentTypegen\Support\Metadata\ModelMetadata;
+use VincentNdegwa\EloquentTypegen\Support\Metadata\RelationMetadata;
 
 it('renders a model file with enums and relations', function () {
     $model = new ModelMetadata('App\\Models\\Note', 'Note', 'note.ts');

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Based\EloquentTypegen\Support\Scanners\MigrationScanner;
+use VincentNdegwa\EloquentTypegen\Support\Scanners\MigrationScanner;
 use Illuminate\Filesystem\Filesystem;
 
 it('detects nullable columns in migrations', function () {

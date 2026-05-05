@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Based\EloquentTypegen\Support\Scanners;
+namespace VincentNdegwa\EloquentTypegen\Support\Scanners;
 
-use Based\EloquentTypegen\Support\Helpers\NameHelper;
-use Based\EloquentTypegen\Support\Metadata\AccessorMetadata;
-use Based\EloquentTypegen\Support\Metadata\EnumMetadata;
-use Based\EloquentTypegen\Support\Metadata\FieldMetadata;
-use Based\EloquentTypegen\Support\Metadata\ModelMetadata;
-use Based\EloquentTypegen\Support\Metadata\RelationMetadata;
-use Based\EloquentTypegen\Support\Resolvers\NullabilityResolver;
-use Based\EloquentTypegen\Support\Resolvers\TypeResolver;
+use VincentNdegwa\EloquentTypegen\Support\Helpers\NameHelper;
+use VincentNdegwa\EloquentTypegen\Support\Metadata\AccessorMetadata;
+use VincentNdegwa\EloquentTypegen\Support\Metadata\EnumMetadata;
+use VincentNdegwa\EloquentTypegen\Support\Metadata\FieldMetadata;
+use VincentNdegwa\EloquentTypegen\Support\Metadata\ModelMetadata;
+use VincentNdegwa\EloquentTypegen\Support\Metadata\RelationMetadata;
+use VincentNdegwa\EloquentTypegen\Support\Resolvers\NullabilityResolver;
+use VincentNdegwa\EloquentTypegen\Support\Resolvers\TypeResolver;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

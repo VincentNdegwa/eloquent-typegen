@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Based\EloquentTypegen\Support\Helpers;
+namespace VincentNdegwa\EloquentTypegen\Support\Helpers;
 
 use Illuminate\Support\Str;
 

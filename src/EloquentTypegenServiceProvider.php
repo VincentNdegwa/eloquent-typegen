@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Based\EloquentTypegen;
+namespace VincentNdegwa\EloquentTypegen;
 
-use Based\EloquentTypegen\Console\GenerateTypesCommand;
+use VincentNdegwa\EloquentTypegen\Console\GenerateTypesCommand;
 use Illuminate\Support\ServiceProvider;
 
 class EloquentTypegenServiceProvider extends ServiceProvider

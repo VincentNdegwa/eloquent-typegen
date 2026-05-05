@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Based\EloquentTypegen\Support\Helpers\NameHelper;
+use VincentNdegwa\EloquentTypegen\Support\Helpers\NameHelper;
 
 it('converts model class name to interface name', function () {
     expect(NameHelper::modelToInterface('App\\Models\\User'))->toBe('User')

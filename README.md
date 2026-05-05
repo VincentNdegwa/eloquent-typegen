@@ -147,7 +147,7 @@ Notice what happened automatically:
 Install as a dev dependency — this package has zero production footprint:
 
 ```bash
-composer require based/eloquent-typegen --dev
+composer require vincentndegwa/eloquent-typegen --dev
 ```
 
 Laravel's auto-discovery registers the package automatically. No manual config needed.

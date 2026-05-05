@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Based\EloquentTypegen\Tests\Fixtures\Enums;
+namespace VincentNdegwa\EloquentTypegen\Tests\Fixtures\Enums;
 
 enum UnitStatus
 {

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Based\EloquentTypegen\Console;
+namespace VincentNdegwa\EloquentTypegen\Console;
 
-use Based\EloquentTypegen\Support\Generators\TypeScriptGenerator;
-use Based\EloquentTypegen\Support\Scanners\ModelScanner;
+use VincentNdegwa\EloquentTypegen\Support\Generators\TypeScriptGenerator;
+use VincentNdegwa\EloquentTypegen\Support\Scanners\ModelScanner;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;

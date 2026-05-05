@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Based\EloquentTypegen\Support\Resolvers;
+namespace VincentNdegwa\EloquentTypegen\Support\Resolvers;
 
 use BackedEnum;
-use Based\EloquentTypegen\Support\Metadata\EnumMetadata;
+use VincentNdegwa\EloquentTypegen\Support\Metadata\EnumMetadata;
 use UnitEnum;
 
 class TypeResolver
