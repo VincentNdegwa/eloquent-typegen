@@ -31,6 +31,10 @@ return [
     |--------------------------------------------------------------------------
     | Migration Type Mapping
     |--------------------------------------------------------------------------
+    |
+    | Map Laravel migration column types to TypeScript types.
+    | These are used when inferring types from migration files.
+    |
     */
     'migration_type_map' => [
         // integers
