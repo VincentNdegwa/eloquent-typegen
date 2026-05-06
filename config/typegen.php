@@ -3,6 +3,17 @@
 declare(strict_types=1);
 
 return [
+    /*
+    |--------------------------------------------------------------------------
+    | Model Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure where to find your Eloquent models and where to save the
+    | generated TypeScript files. You can also customize date representation,
+    | exclude specific models, and override field types.
+    |
+    */
+
     'model_paths' => ['Models'],
     'output_path' => 'resources/js/eloquent-types',
     'generate_index' => true,
@@ -15,6 +26,12 @@ return [
     'additional_models' => [],
     'read_migrations' => true,
     'infer_types_from_migrations' => true,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Migration Type Mapping
+    |--------------------------------------------------------------------------
+    */
     'migration_type_map' => [
         // integers
         'id' => 'number',
@@ -74,17 +91,59 @@ return [
         'binary' => 'string',
         'geometry' => 'string',
     ],
-    // v1.1 - Zod schema generation
+
+    /*
+    |--------------------------------------------------------------------------
+    | Zod Schema Generation
+    |--------------------------------------------------------------------------
+    |
+    | Generate Zod validation schemas alongside your TypeScript types.
+    | Zod schemas can be used for runtime validation in your application.
+    | You can configure a separate output path and enable a barrel file.
+    |
+    */
+
     'generate_zod' => false,
-    'zod_output_path' => null, // defaults to same as output_path
-    'generate_zod_index' => true, // Generate index.zod.ts barrel file
-    // v2 - API Resource scanning
+    'zod_output_path' => null,
+    'generate_zod_index' => true,
+
+    /*
+    |--------------------------------------------------------------------------
+    | API Resource Generation
+    |--------------------------------------------------------------------------
+    |
+    | Generate TypeScript types from Laravel API Resources. You can choose
+    | to generate types based on model fields, the resource's toArray method,
+    | or both. Configure the paths to scan for resource classes.
+    |
+    */
+
     'resource_paths' => ['Http/Resources'],
     'generate_resources' => false,
-    'resource_source' => 'model', // 'model' | 'resource' | 'both'
-    // v2.5 - Form Request scanning
+    'resource_source' => 'model',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Form Request Generation
+    |--------------------------------------------------------------------------
+    |
+    | Generate TypeScript types from Laravel Form Request validation rules.
+    | Configure the paths to scan for request classes and enable generation.
+    |
+    */
+
     'request_paths' => ['Http/Requests'],
     'generate_requests' => false,
-    // v2.6 - Root index barrel generation
-    'root_index_path' => 'types.ts', // Set to null to disable, or 'index.ts' to use default name
+
+    /*
+    |--------------------------------------------------------------------------
+    | Root Index Barrel
+    |--------------------------------------------------------------------------
+    |
+    | Generate a root barrel file that re-exports all types from subdirectories.
+    | You can customize the filename or disable the barrel file entirely.
+    |
+    */
+
+    'root_index_path' => 'types.ts',
 ];
