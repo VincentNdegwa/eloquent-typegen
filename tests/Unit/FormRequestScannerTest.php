@@ -45,8 +45,8 @@ PHP;
 
     expect($requests)->toHaveCount(1);
     expect($requests[0]->className)->toBe('App\\Http\\Requests\\StoreUserRequest');
-    expect($requests[0]->interfaceName)->toBe('StoreUser');
-    expect($requests[0]->fileName)->toBe('store-user.ts');
+    expect($requests[0]->interfaceName)->toBe('StoreUserRequest');
+    expect($requests[0]->fileName)->toBe('store-user-request.ts');
     expect($requests[0]->fields)->toHaveCount(3);
 
     $filesystem->deleteDirectory($dir);

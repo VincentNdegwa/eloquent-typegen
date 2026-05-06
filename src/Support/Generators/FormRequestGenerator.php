@@ -21,9 +21,8 @@ class FormRequestGenerator
     {
         $files = [];
 
-        // Requests go into a `requests/` subdirectory to avoid conflicting
-        // with the model index.ts and model-helpers.ts files
-        $basePath = $this->resolveOutputPath($this->outputPath).'/requests';
+        // Output to the configured path directly (command adds /requests suffix)
+        $basePath = $this->resolveOutputPath($this->outputPath);
 
         foreach ($requests as $request) {
             $filePath = $basePath.'/'.$request->fileName;

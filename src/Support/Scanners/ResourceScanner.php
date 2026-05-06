@@ -161,10 +161,10 @@ class ResourceScanner
                 ? $visitor->namespace.'\\'.$shortName
                 : $shortName;
 
-            // UserResource → User, PostResource → Post
-            $interfaceName = Str::replaceLast('Resource', '', $shortName);
-            $fileName = Str::kebab($interfaceName).'.ts';
-            $relatedModel = $interfaceName;
+            // UserResource → UserResource (keep Resource suffix to avoid name collisions)
+            $interfaceName = $shortName;
+            $fileName = Str::kebab($shortName).'.ts';
+            $relatedModel = Str::replaceLast('Resource', '', $shortName);
 
             $metadata = new ResourceMetadata(
                 className: $fullClassName,
@@ -228,6 +228,7 @@ class ResourceScanner
                 foreach ($this->resolveMergeExpr($item->value, $relatedModel) as $mergedField) {
                     $fields[] = $mergedField;
                 }
+
                 continue;
             }
 
@@ -336,11 +337,11 @@ class ResourceScanner
     private function analyzeValue(Expr $value, string $relatedModel): array
     {
         $result = [
-            'type'           => 'unknown',
-            'optional'       => false,
-            'conditional'    => false,
-            'nullable'       => false,
-            'condition'      => null,
+            'type' => 'unknown',
+            'optional' => false,
+            'conditional' => false,
+            'nullable' => false,
+            'condition' => null,
             'nestedResource' => null,
         ];
 
@@ -402,7 +403,8 @@ class ResourceScanner
         if ($value instanceof New_) {
             $resourceClass = $this->extractClassName($value->class);
             if ($resourceClass !== null) {
-                $iface = Str::replaceLast('Resource', '', class_basename($resourceClass));
+                // Keep the Resource suffix to avoid name collisions
+                $iface = class_basename($resourceClass);
                 $result['type'] = $iface;
                 $result['nestedResource'] = $resourceClass;
             }
@@ -414,7 +416,8 @@ class ResourceScanner
         if ($value instanceof StaticCall && $this->methodName($value) === 'collection') {
             $resourceClass = $this->extractClassName($value->class);
             if ($resourceClass !== null) {
-                $iface = Str::replaceLast('Resource', '', class_basename($resourceClass));
+                // Keep the Resource suffix to avoid name collisions
+                $iface = class_basename($resourceClass);
                 $result['type'] = "{$iface}[]";
                 $result['nestedResource'] = $resourceClass;
             }
@@ -442,6 +445,16 @@ class ResourceScanner
                 : null;
             if ($propName !== null) {
                 $result['type'] = $this->resolveModelFieldType($relatedModel, $propName);
+                // Check if the field is nullable in the model
+                $model = $this->modelIndex[$relatedModel] ?? null;
+                if ($model !== null) {
+                    foreach ($model->fields as $field) {
+                        if ($field->name === $propName && $field->nullable) {
+                            $result['nullable'] = true;
+                            break;
+                        }
+                    }
+                }
             }
 
             return $result;
@@ -489,7 +502,7 @@ class ResourceScanner
         }
 
         // Scalar literals
-        if ($value instanceof Node\Scalar\String_) {
+        if ($value instanceof String_) {
             $result['type'] = 'string';
 
             return $result;

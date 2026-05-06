@@ -22,5 +22,6 @@ abstract class TestCase extends OrchestraTestCase
         $app['config']->set('typegen.read_migrations', true);
         $app['config']->set('typegen.generate_helpers', true);
         $app['config']->set('typegen.generate_index', true);
+        $app['config']->set('typegen.root_index_path', 'types.ts');
     }
 }

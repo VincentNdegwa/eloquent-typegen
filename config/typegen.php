@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 return [
     'model_paths' => ['Models'],
-    'output_path' => 'resources/js/types/models',
+    'output_path' => 'resources/js/eloquent-types',
     'generate_index' => true,
     'generate_helpers' => true,
     'date_type' => 'string',
@@ -77,6 +77,7 @@ return [
     // v1.1 - Zod schema generation
     'generate_zod' => false,
     'zod_output_path' => null, // defaults to same as output_path
+    'generate_zod_index' => true, // Generate index.zod.ts barrel file
     // v2 - API Resource scanning
     'resource_paths' => ['Http/Resources'],
     'generate_resources' => false,
@@ -84,4 +85,6 @@ return [
     // v2.5 - Form Request scanning
     'request_paths' => ['Http/Requests'],
     'generate_requests' => false,
+    // v2.6 - Root index barrel generation
+    'root_index_path' => 'types.ts', // Set to null to disable, or 'index.ts' to use default name
 ];

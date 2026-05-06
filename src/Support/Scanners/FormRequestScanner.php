@@ -140,8 +140,8 @@ class FormRequestScanner
             // Cross-reference array wildcard fields (e.g. tags.* refines tags to string[])
             $fields = $this->resolveWildcardFields($rawFields);
 
-            // Strip the Request suffix for the interface name: StoreUserRequest → StoreUser
-            $interfaceName = Str::replaceLast('Request', '', $className);
+            // Keep the Request suffix for the interface name: StoreUserRequest → StoreUserRequest
+            $interfaceName = $className;
             $fileName = Str::kebab($interfaceName).'.ts';
 
             $metadata = new FormRequestMetadata($fullClassName, $interfaceName, $fileName);
@@ -246,6 +246,7 @@ class FormRequestScanner
                 // Plain string rule
                 if ($item->value instanceof String_) {
                     $rules[] = trim($item->value->value);
+
                     continue;
                 }
 
@@ -363,7 +364,7 @@ class FormRequestScanner
                     $conditionalRules[] = $ruleName.($ruleParam ? ':'.$ruleParam : '');
                     break;
 
-                // String types
+                    // String types
                 case 'string':
                 case 'email':
                 case 'url':
@@ -381,7 +382,7 @@ class FormRequestScanner
                     $type = 'string';
                     break;
 
-                // Number types
+                    // Number types
                 case 'integer':
                 case 'int':
                 case 'numeric':
@@ -390,20 +391,20 @@ class FormRequestScanner
                     $type = 'number';
                     break;
 
-                // Boolean
+                    // Boolean
                 case 'boolean':
                 case 'bool':
                     $type = 'boolean';
                     break;
 
-                // Array — type refined later if wildcard rule exists
+                    // Array — type refined later if wildcard rule exists
                 case 'array':
                     if ($type === 'unknown') {
                         $type = 'unknown[]';
                     }
                     break;
 
-                // Date
+                    // Date
                 case 'date':
                 case 'date_format':
                 case 'date_equals':
@@ -415,7 +416,7 @@ class FormRequestScanner
                     $type = $dateType === 'Date' ? 'Date' : 'string';
                     break;
 
-                // Enum-like: in:a,b,c
+                    // Enum-like: in:a,b,c
                 case 'in':
                     if ($ruleParam !== null) {
                         $values = explode(',', $ruleParam);
@@ -426,7 +427,7 @@ class FormRequestScanner
                     }
                     break;
 
-                // Rule::enum(MyEnum::class) resolved as 'enum:ClassName'
+                    // Rule::enum(MyEnum::class) resolved as 'enum:ClassName'
                 case 'enum':
                     if ($ruleParam !== null && class_exists($ruleParam)) {
                         // Class is loaded — extract the actual values
@@ -444,7 +445,7 @@ class FormRequestScanner
                     }
                     break;
 
-                // File types — type as string (base64 or filename)
+                    // File types — type as string (base64 or filename)
                 case 'file':
                 case 'image':
                 case 'mimes':
@@ -453,7 +454,7 @@ class FormRequestScanner
                     $comment = "file upload: {$ruleName}";
                     break;
 
-                // Rules that add a comment but don't change the type
+                    // Rules that add a comment but don't change the type
                 case 'regex':
                 case 'not_regex':
                 case 'dimensions':
@@ -463,7 +464,7 @@ class FormRequestScanner
                     $comment = "validation: {$ruleName}";
                     break;
 
-                // Ignore: structural/meta rules that don't affect the TS type
+                    // Ignore: structural/meta rules that don't affect the TS type
                 case 'confirmed':
                 case 'same':
                 case 'different':
@@ -543,6 +544,7 @@ class FormRequestScanner
                     nullable: $field->nullable,
                     comment: $field->comment,
                 );
+
                 continue;
             }
 

@@ -46,8 +46,8 @@ PHP;
 
     expect($resources)->toHaveCount(1);
     expect($resources[0]->className)->toBe('App\\Http\\Resources\\UserResource');
-    expect($resources[0]->interfaceName)->toBe('User');
-    expect($resources[0]->fileName)->toBe('user.ts');
+    expect($resources[0]->interfaceName)->toBe('UserResource');
+    expect($resources[0]->fileName)->toBe('user-resource.ts');
     expect($resources[0]->fields)->toHaveCount(3);
 
     $filesystem->deleteDirectory($dir);
@@ -202,7 +202,7 @@ PHP;
     expect($resources[0]->fields[0]->conditional)->toBeTrue();
     expect($resources[0]->fields[0]->condition)->toBe('whenLoaded: role');
     expect($resources[0]->fields[0]->nestedResource)->toBe('RoleResource');
-    expect($resources[0]->fields[0]->type)->toBe('Role');
+    expect($resources[0]->fields[0]->type)->toBe('RoleResource');
 
     $filesystem->deleteDirectory($dir);
 });
@@ -240,7 +240,7 @@ PHP;
 
     expect($resources[0]->fields[1]->name)->toBe('profile');
     expect($resources[0]->fields[1]->nestedResource)->toBe('ProfileResource');
-    expect($resources[0]->fields[1]->type)->toBe('Profile');
+    expect($resources[0]->fields[1]->type)->toBe('ProfileResource');
 
     $filesystem->deleteDirectory($dir);
 });

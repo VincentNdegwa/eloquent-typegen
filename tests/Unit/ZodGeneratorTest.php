@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use VincentNdegwa\EloquentTypegen\Support\Generators\ZodGenerator;
-use VincentNdegwa\EloquentTypegen\Support\Metadata\ModelMetadata;
-use VincentNdegwa\EloquentTypegen\Support\Metadata\FieldMetadata;
 use VincentNdegwa\EloquentTypegen\Support\Metadata\EnumMetadata;
+use VincentNdegwa\EloquentTypegen\Support\Metadata\FieldMetadata;
+use VincentNdegwa\EloquentTypegen\Support\Metadata\ModelMetadata;
 use VincentNdegwa\EloquentTypegen\Support\Metadata\RelationMetadata;
 
 it('generates zod schema for a simple model', function () {
@@ -19,7 +19,7 @@ it('generates zod schema for a simple model', function () {
     $model->fields[] = new FieldMetadata('name', 'string', false, false, false);
     $model->fields[] = new FieldMetadata('email', 'string', false, false, false);
 
-    $generator = new ZodGenerator('/tmp/types', false);
+    $generator = new ZodGenerator('/tmp/types', false, false);
     $files = $generator->generate([$model]);
 
     expect($files)->toHaveCount(1);
@@ -40,7 +40,7 @@ it('handles nullable fields', function () {
 
     $model->fields[] = new FieldMetadata('score', 'number', true, false, false);
 
-    $generator = new ZodGenerator('/tmp/types', false);
+    $generator = new ZodGenerator('/tmp/types', false, false);
     $files = $generator->generate([$model]);
 
     expect($files['/tmp/types/user.zod.ts'])->toContain('score: z.number().nullable(),');
@@ -55,7 +55,7 @@ it('handles optional fields', function () {
 
     $model->fields[] = new FieldMetadata('nickname', 'string', false, false, true);
 
-    $generator = new ZodGenerator('/tmp/types', false);
+    $generator = new ZodGenerator('/tmp/types', false, false);
     $files = $generator->generate([$model]);
 
     expect($files['/tmp/types/user.zod.ts'])->toContain('nickname: z.string().optional(),');
@@ -70,7 +70,7 @@ it('handles nullable and optional fields', function () {
 
     $model->fields[] = new FieldMetadata('bio', 'string', true, false, true);
 
-    $generator = new ZodGenerator('/tmp/types', false);
+    $generator = new ZodGenerator('/tmp/types', false, false);
     $files = $generator->generate([$model]);
 
     expect($files['/tmp/types/user.zod.ts'])->toContain('bio: z.string().nullable().optional(),');
@@ -86,7 +86,7 @@ it('generates string enum schemas', function () {
     $model->enums[] = new EnumMetadata('UserRole', "'admin' | 'editor' | 'viewer'");
     $model->fields[] = new FieldMetadata('role', 'UserRole', false, false, false);
 
-    $generator = new ZodGenerator('/tmp/types', false);
+    $generator = new ZodGenerator('/tmp/types', false, false);
     $files = $generator->generate([$model]);
 
     expect($files['/tmp/types/user.zod.ts'])->toContain('export const UserRoleSchema = z.enum([\'admin\', \'editor\', \'viewer\']);');
@@ -103,7 +103,7 @@ it('generates int enum schemas using z.union', function () {
     $model->enums[] = new EnumMetadata('UserStatus', '1 | 0');
     $model->fields[] = new FieldMetadata('status', 'UserStatus', false, false, false);
 
-    $generator = new ZodGenerator('/tmp/types', false);
+    $generator = new ZodGenerator('/tmp/types', false, false);
     $files = $generator->generate([$model]);
 
     expect($files['/tmp/types/user.zod.ts'])->toContain('export const UserStatusSchema = z.union([z.literal(1), z.literal(0)]);');
@@ -119,7 +119,7 @@ it('handles boolean fields', function () {
 
     $model->fields[] = new FieldMetadata('active', 'boolean', false, false, false);
 
-    $generator = new ZodGenerator('/tmp/types', false);
+    $generator = new ZodGenerator('/tmp/types', false, false);
     $files = $generator->generate([$model]);
 
     expect($files['/tmp/types/user.zod.ts'])->toContain('active: z.boolean(),');
@@ -134,7 +134,7 @@ it('handles Record<string, unknown> type', function () {
 
     $model->fields[] = new FieldMetadata('metadata', 'Record<string, unknown>', false, false, false);
 
-    $generator = new ZodGenerator('/tmp/types', false);
+    $generator = new ZodGenerator('/tmp/types', false, false);
     $files = $generator->generate([$model]);
 
     expect($files['/tmp/types/user.zod.ts'])->toContain('metadata: z.record(z.string(), z.unknown()),');
@@ -149,7 +149,7 @@ it('handles Date type with z.coerce.date()', function () {
 
     $model->fields[] = new FieldMetadata('created_at', 'Date', false, false, false);
 
-    $generator = new ZodGenerator('/tmp/types', false);
+    $generator = new ZodGenerator('/tmp/types', false, false);
     $files = $generator->generate([$model]);
 
     expect($files['/tmp/types/user.zod.ts'])->toContain('created_at: z.coerce.date(),');
@@ -164,7 +164,7 @@ it('handles unknown fields', function () {
 
     $model->fields[] = new FieldMetadata('custom', 'unknown', false, false, false);
 
-    $generator = new ZodGenerator('/tmp/types', false);
+    $generator = new ZodGenerator('/tmp/types', false, false);
     $files = $generator->generate([$model]);
 
     expect($files['/tmp/types/user.zod.ts'])->toContain('custom: z.unknown(),');
@@ -179,7 +179,7 @@ it('includes auto-generated header comment', function () {
 
     $model->fields[] = new FieldMetadata('id', 'number', false, true, false);
 
-    $generator = new ZodGenerator('/tmp/types', false);
+    $generator = new ZodGenerator('/tmp/types', false, false);
     $files = $generator->generate([$model]);
 
     expect($files['/tmp/types/user.zod.ts'])->toContain('// This file is auto-generated by eloquent-typegen. Do not edit manually.');
@@ -195,10 +195,10 @@ it('generates CreateSchema and UpdateSchema', function () {
     $model->fields[] = new FieldMetadata('id', 'number', false, true, false);
     $model->fields[] = new FieldMetadata('name', 'string', false, false, false);
 
-    $generator = new ZodGenerator('/tmp/types', false);
+    $generator = new ZodGenerator('/tmp/types', false, false);
     $files = $generator->generate([$model]);
 
-    expect($files['/tmp/types/user.zod.ts'])->toContain('export const CreateUserSchema = UserSchema.omit({ \'id\', \'created_at\', \'updated_at\', \'deleted_at\' } as const);');
+    expect($files['/tmp/types/user.zod.ts'])->toContain('export const CreateUserSchema = UserSchema.omit({ id: true, created_at: true, updated_at: true, deleted_at: true });');
     expect($files['/tmp/types/user.zod.ts'])->toContain('export const UpdateUserSchema = CreateUserSchema.partial();');
 });
 
@@ -209,7 +209,7 @@ it('generates relation imports for related models', function () {
     $user->relations[] = new RelationMetadata('posts', 'Post[]');
     $user->fields[] = new FieldMetadata('id', 'number', false, true, false);
 
-    $generator = new ZodGenerator('/tmp/types', true);
+    $generator = new ZodGenerator('/tmp/types', true, false);
     $files = $generator->generate([$user, $post]);
 
     expect($files['/tmp/types/user.zod.ts'])->toContain("import { PostSchema } from './post.zod';");
@@ -223,7 +223,7 @@ it('uses z.lazy for single relations to handle circular references', function ()
     $user->relations[] = new RelationMetadata('profile', 'Post');
     $user->fields[] = new FieldMetadata('id', 'number', false, true, false);
 
-    $generator = new ZodGenerator('/tmp/types', true);
+    $generator = new ZodGenerator('/tmp/types', true, false);
     $files = $generator->generate([$user, $post]);
 
     expect($files['/tmp/types/user.zod.ts'])->toContain('profile: z.lazy(() => PostSchema).optional(),');
@@ -235,7 +235,7 @@ it('skips self-referential relation imports', function () {
     $quote->relations[] = new RelationMetadata('parentQuote', 'Quote');
     $quote->fields[] = new FieldMetadata('id', 'number', false, true, false);
 
-    $generator = new ZodGenerator('/tmp/types', true);
+    $generator = new ZodGenerator('/tmp/types', true, false);
     $files = $generator->generate([$quote]);
 
     expect($files['/tmp/types/quote.zod.ts'])->not->toContain('import { QuoteSchema } from');
@@ -251,8 +251,34 @@ it('handles unknown[] type', function () {
 
     $model->fields[] = new FieldMetadata('tags', 'unknown[]', false, false, false);
 
-    $generator = new ZodGenerator('/tmp/types', false);
+    $generator = new ZodGenerator('/tmp/types', false, false);
     $files = $generator->generate([$model]);
 
     expect($files['/tmp/types/user.zod.ts'])->toContain('tags: z.array(z.unknown()),');
+});
+
+it('generates index.zod.ts barrel file when enabled', function () {
+    $user = new ModelMetadata('App\\Models\\User', 'User', 'user.ts');
+    $post = new ModelMetadata('App\\Models\\Post', 'Post', 'post.ts');
+
+    $user->fields[] = new FieldMetadata('id', 'number', false, true, false);
+    $post->fields[] = new FieldMetadata('id', 'number', false, true, false);
+
+    $generator = new ZodGenerator('/tmp/types', false, true);
+    $files = $generator->generate([$user, $post]);
+
+    expect($files)->toHaveKey('/tmp/types/index.zod.ts');
+    expect($files['/tmp/types/index.zod.ts'])->toContain('// This file is auto-generated by eloquent-typegen. Do not edit manually.');
+    expect($files['/tmp/types/index.zod.ts'])->toContain("export type { UserSchema, CreateUserSchema, UpdateUserSchema } from './user.zod';");
+    expect($files['/tmp/types/index.zod.ts'])->toContain("export type { PostSchema, CreatePostSchema, UpdatePostSchema } from './post.zod';");
+});
+
+it('does not generate index.zod.ts when disabled', function () {
+    $model = new ModelMetadata('App\\Models\\User', 'User', 'user.ts');
+    $model->fields[] = new FieldMetadata('id', 'number', false, true, false);
+
+    $generator = new ZodGenerator('/tmp/types', false, false);
+    $files = $generator->generate([$model]);
+
+    expect($files)->not->toHaveKey('/tmp/types/index.zod.ts');
 });
