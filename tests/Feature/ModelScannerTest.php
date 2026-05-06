@@ -288,3 +288,45 @@ PHP);
 
     $filesystem->delete(app_path('Models/TestModel2.php'));
 });
+
+it('handles additional_models config', function () {
+    config([
+        'typegen.additional_models' => ['App\Models\CustomModel'],
+        'typegen.model_paths' => [],
+        'typegen.include_vendor_models' => false,
+    ]);
+
+    $scanner = new ModelScanner;
+    $results = $scanner->scan();
+
+    expect($results)->toBeEmpty(); // CustomModel doesn't exist, so empty
+});
+
+it('handles excluded_models config', function () {
+    $filesystem = new Filesystem;
+    $filesystem->ensureDirectoryExists(app_path('Models'));
+
+    $filesystem->put(app_path('Models/ExcludedModel.php'), <<<'PHP'
+<?php
+
+namespace App\Models;
+
+class ExcludedModel extends \Illuminate\Database\Eloquent\Model
+{
+    protected $fillable = ['name'];
+}
+PHP);
+
+    config([
+        'typegen.excluded_models' => ['App\Models\ExcludedModel'],
+        'typegen.include_vendor_models' => false,
+    ]);
+
+    $scanner = new ModelScanner;
+    $results = $scanner->scan();
+
+    $excludedModel = collect($results)->first(fn ($model) => $model->className === 'App\Models\ExcludedModel');
+    expect($excludedModel)->toBeNull();
+
+    $filesystem->delete(app_path('Models/ExcludedModel.php'));
+});

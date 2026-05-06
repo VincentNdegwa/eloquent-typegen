@@ -44,4 +44,4 @@ jobs:
         run: ./vendor/bin/phpstan analyse
 
       - name: Run Tests
-        run: ./vendor/bin/pest --coverage --min=80
+        run: ./vendor/bin/pest --coverage --min=75

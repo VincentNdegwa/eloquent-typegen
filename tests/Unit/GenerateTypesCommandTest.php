@@ -32,3 +32,8 @@ it('respects root_index_path config when null', function () {
     config(['typegen.root_index_path' => null]);
     expect(config('typegen.root_index_path'))->toBeNull();
 });
+
+it('has correct command description', function () {
+    $command = new GenerateTypesCommand;
+    expect($command->getDescription())->toBe('Generate TypeScript types from Eloquent models');
+});
