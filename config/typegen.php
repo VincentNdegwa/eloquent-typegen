@@ -74,4 +74,14 @@ return [
         'binary' => 'string',
         'geometry' => 'string',
     ],
+    // v1.1 - Zod schema generation
+    'generate_zod' => false,
+    'zod_output_path' => null, // defaults to same as output_path
+    // v2 - API Resource scanning
+    'resource_paths' => ['Http/Resources'],
+    'generate_resources' => false,
+    'resource_source' => 'model', // 'model' | 'resource' | 'both'
+    // v2.5 - Form Request scanning
+    'request_paths' => ['Http/Requests'],
+    'generate_requests' => false,
 ];
