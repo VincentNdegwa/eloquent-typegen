@@ -225,12 +225,16 @@ class ModelScanner
             }
 
             $nullable = $this->nullabilityResolver->isNullable($model->getTable(), (string) $field);
+            $constraints = $this->nullabilityResolver->getConstraints($model->getTable(), (string) $field);
             $metadata->fields[] = new FieldMetadata(
                 (string) $field,
                 $resolution->type,
                 $nullable,
                 false,
                 $nullable,
+                $constraints['min'],
+                $constraints['max'],
+                $constraints['unsigned'],
             );
         }
 

@@ -10,8 +10,6 @@ class MigrationScanner
 {
     /**
      * Maps Laravel Blueprint method names → TypeScript-friendly type strings.
-     * These are used when a model field has no cast — we fall back to what
-     * the migration column type tells us.
      *
      * @var array<string, string>
      */
@@ -84,42 +82,45 @@ class MigrationScanner
     /**
      * Scan all migration files in the given directory (recursively).
      *
-     * Returns two maps keyed by table name:
+     * Returns maps keyed by table name:
      *   - nullable: [column => true]
      *   - columnTypes: [column => 'number'|'string'|'boolean'|'date'|'json']
+     *   - constraints: [column => ['unsigned' => bool, 'min' => int|null, 'max' => int|null]]
      *
      * @return array{
      *     nullable: array<string, array<string, bool>>,
-     *     columnTypes: array<string, array<string, string>>
+     *     columnTypes: array<string, array<string, string>>,
+     *     constraints: array<string, array<string, array<string, bool|int|null>>>
      * }
      */
     public function scan(string $path): array
     {
         if (! $this->filesystem->isDirectory($path)) {
-            return ['nullable' => [], 'columnTypes' => []];
+            return ['nullable' => [], 'columnTypes' => [], 'constraints' => []];
         }
 
         $nullable = [];
         $columnTypes = [];
+        $constraints = [];
 
-        // allFiles() is recursive — catches migrations in subdirectories
         foreach ($this->filesystem->allFiles($path) as $file) {
             if ($file->getExtension() !== 'php') {
                 continue;
             }
 
             $content = $this->filesystem->get($file->getPathname());
-            $this->scanContent($content, $nullable, $columnTypes);
+            $this->scanContent($content, $nullable, $columnTypes, $constraints);
         }
 
-        return ['nullable' => $nullable, 'columnTypes' => $columnTypes];
+        return ['nullable' => $nullable, 'columnTypes' => $columnTypes, 'constraints' => $constraints];
     }
 
     /**
      * @param  array<string, array<string, bool>>  $nullable
      * @param  array<string, array<string, string>>  $columnTypes
+     * @param  array<string, array<string, array<string, bool|int|null>>>  $constraints
      */
-    private function scanContent(string $content, array &$nullable, array &$columnTypes): void
+    private function scanContent(string $content, array &$nullable, array &$columnTypes, array &$constraints): void
     {
         $lines = preg_split('/\R/', $content) ?: [];
         $currentTable = null;
@@ -127,11 +128,11 @@ class MigrationScanner
         foreach ($lines as $line) {
             $line = trim($line);
 
-            // ── Table context detection ────────────────────────────────────
             if (preg_match("/Schema::(?:create|table)\s*\(\s*['\"]([^'\"]+)['\"]/", $line, $m)) {
                 $currentTable = $m[1];
                 $nullable[$currentTable] ??= [];
                 $columnTypes[$currentTable] ??= [];
+                $constraints[$currentTable] ??= [];
 
                 continue;
             }
@@ -140,10 +141,10 @@ class MigrationScanner
                 continue;
             }
 
-            // ── Macro helpers ──────────────────────────────────────────────
             if (str_contains($line, '$table->id(')) {
                 $columnTypes[$currentTable]['id'] = 'number';
                 $nullable[$currentTable]['id'] = false;
+                $constraints[$currentTable]['id'] = ['unsigned' => true, 'min' => null, 'max' => null];
 
                 continue;
             }
@@ -172,9 +173,6 @@ class MigrationScanner
                 continue;
             }
 
-            // ── Regular column definitions ─────────────────────────────────
-            // Matches: $table->unsignedBigInteger('column_name')
-            //          $table->string('column_name', 100)
             if (! preg_match('/\$table->(\w+)\s*\(\s*[\'"]([^\'"]+)[\'"]/', $line, $m)) {
                 continue;
             }
@@ -182,19 +180,34 @@ class MigrationScanner
             $method = $m[1];
             $column = $m[2];
 
-            // Skip schema helpers that aren't column definitions
             if (in_array($method, ['dropColumn', 'dropForeign', 'dropIndex', 'dropPrimary',
                 'dropUnique', 'renameColumn', 'foreign', 'index', 'unique', 'primary'], true)) {
                 continue;
             }
 
-            // Record the TypeScript-friendly type if we know this method
             if (isset($this->columnTypeMap[$method])) {
                 $columnTypes[$currentTable][$column] = $this->columnTypeMap[$method];
             }
 
-            // Record nullability
             $nullable[$currentTable][$column] = str_contains($line, '->nullable()');
+
+            $constraint = [
+                'unsigned' => str_contains($method, 'unsigned') || str_contains($line, '->unsigned()'),
+                'min' => null,
+                'max' => null,
+            ];
+
+            if (preg_match('/->length\s*\(\s*(\d+)\s*\)/', $line, $lengthMatch)) {
+                $constraint['max'] = (int) $lengthMatch[1];
+            } elseif (preg_match('/->max\s*\(\s*(\d+)\s*\)/', $line, $maxMatch)) {
+                $constraint['max'] = (int) $maxMatch[1];
+            }
+
+            if (preg_match('/->min\s*\(\s*(\d+)\s*\)/', $line, $minMatch)) {
+                $constraint['min'] = (int) $minMatch[1];
+            }
+
+            $constraints[$currentTable][$column] = $constraint;
         }
     }
 }

@@ -6,6 +6,7 @@ namespace VincentNdegwa\EloquentTypegen\Support\Generators;
 
 use Illuminate\Support\Str;
 use VincentNdegwa\EloquentTypegen\Support\Metadata\EnumMetadata;
+use VincentNdegwa\EloquentTypegen\Support\Metadata\FieldMetadata;
 use VincentNdegwa\EloquentTypegen\Support\Metadata\ModelMetadata;
 
 class ZodGenerator
@@ -77,15 +78,18 @@ class ZodGenerator
         $lines[] = '';
         $lines[] = "import { z } from 'zod';";
 
-        // Import related schemas for relations
         $relatedImports = $this->collectRelationImports($model, $modelMap);
         foreach ($relatedImports as $import) {
             $lines[] = $import;
         }
 
+        $typeImports = $this->collectTypeImports($model, $modelMap);
+        foreach ($typeImports as $import) {
+            $lines[] = $import;
+        }
+
         $lines[] = '';
 
-        // Declare enum schemas before the model schema that references them
         foreach ($model->enums as $enum) {
             $lines[] = $this->renderEnumSchema($enum);
         }
@@ -94,9 +98,8 @@ class ZodGenerator
             $lines[] = '';
         }
 
-        // Main schema
-        $schemaName = $model->interfaceName.'Schema';
-        $lines[] = "export const {$schemaName} = z.object({";
+        $rawSchemaName = 'Raw'.$model->interfaceName.'Schema';
+        $lines[] = "const {$rawSchemaName} = z.object({";
 
         foreach ($this->renderFields($model, $modelMap) as $fieldLine) {
             $lines[] = $fieldLine;
@@ -105,13 +108,23 @@ class ZodGenerator
         $lines[] = '});';
         $lines[] = '';
 
-        // Inferred TypeScript type from schema
-        $lines[] = "export type {$model->interfaceName} = z.infer<typeof {$schemaName}>;";
+        $lines[] = $this->renderCreateSchema($model, $rawSchemaName);
+        $lines[] = $this->renderUpdateSchema($model);
         $lines[] = '';
 
-        // Payload schemas — mirrors what TypeScriptGenerator produces
-        $lines[] = $this->renderCreateSchema($model);
-        $lines[] = $this->renderUpdateSchema($model);
+        $schemaName = $model->interfaceName.'Schema';
+        if ($this->includeRelations) {
+            $lines[] = "export const {$schemaName} = {$rawSchemaName} as z.ZodType<{$model->interfaceName}>;";
+        } else {
+            $lines[] = "export const {$schemaName} = {$rawSchemaName} as z.ZodType<{$model->interfaceName}Base>;";
+        }
+        $lines[] = '';
+
+        if ($this->includeRelations) {
+            $lines[] = "export type {$model->interfaceName} = {$model->interfaceName}Model;";
+        } else {
+            $lines[] = "export type {$model->interfaceName} = {$model->interfaceName}Base;";
+        }
         $lines[] = '';
 
         return implode("\n", $lines);
@@ -119,34 +132,33 @@ class ZodGenerator
 
     /**
      * Produces: export const UserRoleSchema = z.enum(['admin', 'editor', 'viewer']);
-     * Handles both string-backed enums ('admin' | 'editor') and int-backed (1 | 0).
      */
     private function renderEnumSchema(EnumMetadata $enum): string
     {
-        // definition is the TypeScript union, e.g. "'admin' | 'editor'" or "1 | 0"
-        $parts = array_map('trim', explode('|', $enum->definition));
+        $definition = $enum->definition;
         $schemaName = $enum->name.'Schema';
 
-        // Detect int enum — values have no surrounding quotes
-        $isIntEnum = ! str_starts_with($parts[0], "'");
+        if (str_contains($definition, '|')) {
+            $parts = explode('|', $definition);
 
-        if ($isIntEnum) {
-            // z.union([z.literal(1), z.literal(0)])
+            if (str_contains($definition, "'")) {
+                $literals = implode(', ', array_map(
+                    fn (string $v) => trim($v),
+                    $parts
+                ));
+
+                return "export const {$schemaName} = z.enum([{$literals}]);";
+            }
+
             $literals = implode(', ', array_map(
-                fn (string $v) => 'z.literal('.$v.')',
+                fn (string $v) => 'z.literal('.trim($v).')',
                 $parts
             ));
 
             return "export const {$schemaName} = z.union([{$literals}]);";
         }
 
-        // String enum — use z.enum([...]) which is more ergonomic
-        $values = implode(', ', array_map(
-            fn (string $v) => trim($v), // keep the surrounding quotes from definition
-            $parts
-        ));
-
-        return "export const {$schemaName} = z.enum([{$values}]);";
+        return "export const {$schemaName} = z.enum([{$definition}]);";
     }
 
     /**
@@ -159,7 +171,7 @@ class ZodGenerator
         $enumNames = array_map(fn ($e) => $e->name, $model->enums);
 
         foreach ($model->fields as $field) {
-            $zodType = $this->typeToZod($field->type, $enumNames, $modelMap);
+            $zodType = $this->typeToZod($field->type, $enumNames, $modelMap, $field);
 
             if ($field->nullable) {
                 $zodType .= '.nullable()';
@@ -172,16 +184,14 @@ class ZodGenerator
             $lines[] = "    {$field->name}: {$zodType},";
         }
 
-        // Accessors — always unknown, always optional
         foreach ($model->accessors as $accessor) {
             $lines[] = "    {$accessor->name}: z.unknown().optional(),";
         }
 
-        // Relations — optional since they're only present when eager-loaded
         if ($this->includeRelations) {
             foreach ($model->relations as $relation) {
                 $zodType = $this->relationToZod($relation->type, $modelMap);
-                $lines[] = "    {$relation->name}: {$zodType}.optional(),";
+                $lines[] = "    {$relation->name}: {$zodType},";
             }
         }
 
@@ -194,39 +204,52 @@ class ZodGenerator
      * @param  string[]  $enumNames  enum names defined on this model
      * @param  array<string, string>  $modelMap
      */
-    private function typeToZod(string $type, array $enumNames, array $modelMap): string
+    private function typeToZod(string $type, array $enumNames, array $modelMap, FieldMetadata $field): string
     {
-        // Enum type — reference the already-declared schema
         if (in_array($type, $enumNames, true)) {
             return $type.'Schema';
         }
 
-        // Related model type (single, e.g. 'Post') — use z.lazy for circular safety
         if (isset($modelMap[$type])) {
-            return "z.lazy(() => {$type}Schema)";
+            return "z.lazy(() => {$type}Schema).nullable() as z.ZodType<{$type} | null | undefined>";
         }
 
-        // Array of related model (e.g. 'Post[]')
         if (str_ends_with($type, '[]')) {
             $base = substr($type, 0, -2);
             if (isset($modelMap[$base])) {
-                return "z.array(z.lazy(() => {$base}Schema))";
+                return "z.array(z.lazy(() => {$base}Schema) as z.ZodType<{$base}>) as z.ZodType<{$base}[] | undefined>";
             }
         }
 
-        return match ($type) {
+        $zodType = match ($type) {
             'number' => 'z.number()',
             'string' => 'z.string()',
             'boolean' => 'z.boolean()',
-            // date_type:'string' produces 'string' — covered above
-            // date_type:'Date' produces 'Date' — handle explicitly
             'Date' => 'z.coerce.date()',
-            // json/array casts
             'Record<string, unknown>' => 'z.record(z.string(), z.unknown())',
             'unknown[]' => 'z.array(z.unknown())',
             'unknown' => 'z.unknown()',
             default => 'z.unknown()',
         };
+
+        return $this->applyConstraints($zodType, $field);
+    }
+
+    private function applyConstraints(string $zodType, FieldMetadata $field): string
+    {
+        if ($field->unsigned) {
+            $zodType .= '.int().positive()';
+        }
+
+        if ($field->min !== null) {
+            $zodType .= ".min({$field->min})";
+        }
+
+        if ($field->max !== null) {
+            $zodType .= ".max({$field->max})";
+        }
+
+        return $zodType;
     }
 
     /**
@@ -241,7 +264,7 @@ class ZodGenerator
             $base = substr($type, 0, -2);
 
             if (isset($modelMap[$base])) {
-                return "z.array(z.lazy(() => {$base}Schema))";
+                return "z.array(z.lazy(() => {$base}Schema) as z.ZodType<{$base}>) as z.ZodType<{$base}[] | undefined>";
             }
 
             return 'z.array(z.unknown())';
@@ -249,11 +272,56 @@ class ZodGenerator
 
         // Single relation e.g. 'Post'
         if (isset($modelMap[$type])) {
-            return "z.lazy(() => {$type}Schema)";
+            return "z.lazy(() => {$type}Schema).nullable() as z.ZodType<{$type} | null | undefined>";
         }
 
         // MorphTo or unknown relation
         return 'z.unknown()';
+    }
+
+    /**
+     * Build import statements for types from TypeScript files.
+     *
+     * @param  array<string, string>  $modelMap  interfaceName => zodFileBase
+     * @return string[]
+     */
+    private function collectTypeImports(ModelMetadata $model, array $modelMap): array
+    {
+        if (! $this->includeRelations) {
+            // When not including relations, import the base type
+            return ["import type { {$model->interfaceName}Base } from './{$model->fileName}';"];
+        }
+
+        $imports = [];
+        $seen = [];
+
+        foreach ($model->relations as $relation) {
+            $base = str_ends_with($relation->type, '[]')
+                ? substr($relation->type, 0, -2)
+                : $relation->type;
+
+            // Don't import yourself (self-referential relations like parentQuote)
+            if ($base === $model->interfaceName) {
+                continue;
+            }
+
+            if (! isset($modelMap[$base]) || isset($seen[$base])) {
+                continue;
+            }
+
+            $seen[$base] = true;
+            $tsFile = $modelMap[$base]; // e.g. 'post'
+            $imports[] = "import type { {$base} } from './{$tsFile}';";
+        }
+
+        // Import the full type for the current model
+        $tsFile = Str::replaceLast('.ts', '', $model->fileName);
+        $tsFile = Str::replaceLast('.zod', '', $tsFile);
+        $imports[] = "import { {$model->interfaceName} as {$model->interfaceName}Model } from './{$tsFile}';";
+
+        sort($imports);
+
+        return $imports;
     }
 
     /**
@@ -296,33 +364,40 @@ class ZodGenerator
         return $imports;
     }
 
-    /**
-     * CreateSchema omits system-managed fields and relations.
-     * Mirrors CreateModelPayload from TypeScriptGenerator.
-     */
-    private function renderCreateSchema(ModelMetadata $model): string
+    private function renderCreateSchema(ModelMetadata $model, string $rawSchemaName): string
     {
-        $omit = ['id', 'created_at', 'updated_at', 'deleted_at'];
+        $omit = [];
+
+        if (collect($model->fields)->first(fn ($field) => $field->name === 'id')) {
+            $omit[] = 'id';
+        }
+
+        if (collect($model->fields)->first(fn ($field) => $field->name === 'created_at')) {
+            $omit[] = 'created_at';
+        }
+
+        if (collect($model->fields)->first(fn ($field) => $field->name === 'updated_at')) {
+            $omit[] = 'updated_at';
+        }
+
+        if (collect($model->fields)->first(fn ($field) => $field->name === 'deleted_at')) {
+            $omit[] = 'deleted_at';
+        }
 
         foreach ($model->accessors as $accessor) {
             $omit[] = $accessor->name;
         }
 
-        foreach ($model->relations as $relation) {
-            $omit[] = $relation->name;
-        }
-
         $omitStr = implode(', ', array_map(fn ($f) => "{$f}: true", array_unique($omit)));
-        $schemaName = $model->interfaceName.'Schema';
         $createName = 'Create'.$model->interfaceName.'Schema';
 
-        return "export const {$createName} = {$schemaName}.omit({ {$omitStr} });";
+        if (empty($omit)) {
+            return "export const {$createName} = {$rawSchemaName};";
+        }
+
+        return "export const {$createName} = {$rawSchemaName}.omit({ {$omitStr} });";
     }
 
-    /**
-     * UpdateSchema is the Create schema made fully partial.
-     * Mirrors UpdateModelPayload from TypeScriptGenerator.
-     */
     private function renderUpdateSchema(ModelMetadata $model): string
     {
         $createName = 'Create'.$model->interfaceName.'Schema';

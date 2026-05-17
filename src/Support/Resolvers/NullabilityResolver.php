@@ -11,14 +11,11 @@ class NullabilityResolver
     /** @var array<string, array<string, bool>> */
     private array $nullableByTable = [];
 
-    /**
-     * Column types inferred from migration method names.
-     * Used as a fallback when a model field has no explicit cast.
-     * Values are internal type tokens: 'number'|'string'|'boolean'|'date'|'json'
-     *
-     * @var array<string, array<string, string>>
-     */
+    /** @var array<string, array<string, string>> */
     private array $columnTypesByTable = [];
+
+    /** @var array<string, array<string, array<string, bool|int|null>>> */
+    private array $constraintsByTable = [];
 
     public function __construct(
         private readonly bool $readMigrations,
@@ -36,6 +33,7 @@ class NullabilityResolver
 
         $this->nullableByTable = $result['nullable'];
         $this->columnTypesByTable = $result['columnTypes'];
+        $this->constraintsByTable = $result['constraints'];
     }
 
     public function isNullable(string $table, string $column): bool
@@ -47,21 +45,27 @@ class NullabilityResolver
         return $this->nullableByTable[$table][$column] ?? false;
     }
 
-    /**
-     * Return the migration-inferred type token for a column, or null if unknown.
-     * Token values: 'number' | 'string' | 'boolean' | 'date' | 'json'
-     */
     public function columnType(string $table, string $column): ?string
     {
         return $this->columnTypesByTable[$table][$column] ?? null;
     }
 
-    /**
-     * Returns true if the migration scanner has any information at all for this table.
-     * Useful to distinguish "no migration found" from "migration found, field not in it".
-     */
     public function tableKnown(string $table): bool
     {
         return isset($this->nullableByTable[$table]) || isset($this->columnTypesByTable[$table]);
+    }
+
+    /**
+     * @return array{unsigned: bool, min: int|null, max: int|null}
+     */
+    public function getConstraints(string $table, string $column): array
+    {
+        $constraints = $this->constraintsByTable[$table][$column] ?? ['unsigned' => false, 'min' => null, 'max' => null];
+
+        return [
+            'unsigned' => (bool) ($constraints['unsigned'] ?? false),
+            'min' => $constraints['min'] !== null ? (int) $constraints['min'] : null,
+            'max' => $constraints['max'] !== null ? (int) $constraints['max'] : null,
+        ];
     }
 }

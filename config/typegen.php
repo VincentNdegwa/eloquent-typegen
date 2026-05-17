@@ -21,7 +21,7 @@ return [
     'date_type' => 'string',
     'excluded_models' => [],
     'custom_type_map' => [],
-    'include_relationships' => true,
+    'include_relationships' => true, // true = with relationships, false = without relationships (Base interface only)
     'include_vendor_models' => true,
     'additional_models' => [],
     'read_migrations' => true,

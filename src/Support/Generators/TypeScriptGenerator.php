@@ -88,14 +88,25 @@ class TypeScriptGenerator
             $lines[] = '';
         }
 
-        $lines[] = "export interface {$model->interfaceName} {";
-        foreach ($this->renderFields($model) as $fieldLine) {
+        // Generate base interface (without relationships)
+        $lines[] = "export interface {$model->interfaceName}Base {";
+        foreach ($this->renderFields($model, false) as $fieldLine) {
             $lines[] = $fieldLine;
         }
         $lines[] = '}';
         $lines[] = '';
 
-        $createPayload = $this->renderCreatePayload($model);
+        if ($this->includeRelations) {
+            $lines[] = "export interface {$model->interfaceName} extends {$model->interfaceName}Base {";
+            foreach ($model->relations as $relation) {
+                $lines[] = $this->formatField($relation->name, $relation->type, false, false, true);
+            }
+            $lines[] = '}';
+            $lines[] = '';
+        }
+
+        // Create/Update payloads always use Base interface (without relationships)
+        $createPayload = $this->renderCreatePayload($model, "{$model->interfaceName}Base");
         $updatePayload = $this->renderUpdatePayload($model);
 
         $lines[] = $createPayload;
@@ -105,8 +116,10 @@ class TypeScriptGenerator
         return implode("\n", $lines);
     }
 
-    /** @return array<string> */
-    private function renderFields(ModelMetadata $model): array
+    /**
+     * @return array<string>
+     */
+    private function renderFields(ModelMetadata $model, bool $includeRelations): array
     {
         $lines = [];
 
@@ -118,7 +131,7 @@ class TypeScriptGenerator
             $lines[] = $this->formatField($accessor->name, 'unknown', false, true, true);
         }
 
-        if ($this->includeRelations) {
+        if ($includeRelations) {
             foreach ($model->relations as $relation) {
                 $lines[] = $this->formatField($relation->name, $relation->type, false, false, true);
             }
@@ -187,17 +200,17 @@ class TypeScriptGenerator
         return str_ends_with($type, '[]') ? substr($type, 0, -2) : $type;
     }
 
-    private function renderCreatePayload(ModelMetadata $model): string
+    private function renderCreatePayload(ModelMetadata $model, string $interfaceName): string
     {
         $omit = $this->payloadOmitFields($model);
 
         if (empty($omit)) {
-            return "export type Create{$model->interfaceName}Payload = {$model->interfaceName};";
+            return "export type Create{$model->interfaceName}Payload = {$interfaceName};";
         }
 
         $fields = $this->formatOmitList($omit);
 
-        return "export type Create{$model->interfaceName}Payload = Omit<{$model->interfaceName}, {$fields}>;";
+        return "export type Create{$model->interfaceName}Payload = Omit<{$interfaceName}, {$fields}>;";
     }
 
     private function renderUpdatePayload(ModelMetadata $model): string
@@ -210,16 +223,18 @@ class TypeScriptGenerator
      */
     private function payloadOmitFields(ModelMetadata $model): array
     {
-        $omit = ['id', 'created_at', 'updated_at', 'deleted_at'];
+        $omit = ['id', 'created_at', 'updated_at'];
+
+        // Only omit deleted_at if it exists in the model (soft delete)
+        if (collect($model->fields)->first(fn ($field) => $field->name === 'deleted_at')) {
+            $omit[] = 'deleted_at';
+        }
 
         foreach ($model->accessors as $accessor) {
             $omit[] = $accessor->name;
         }
 
-        foreach ($model->relations as $relation) {
-            $omit[] = $relation->name;
-        }
-
+        // Don't omit relations since payloads always use Base interface (without relationships)
         return array_values(array_unique($omit));
     }
 
@@ -275,7 +290,14 @@ class TypeScriptGenerator
 
         foreach ($models as $model) {
             $file = Str::replaceLast('.ts', '', $model->fileName);
-            $lines[] = "export type { {$model->interfaceName}, Create{$model->interfaceName}Payload, Update{$model->interfaceName}Payload } from './{$file}';";
+
+            if ($this->includeRelations) {
+                // Export both Base and full interface when include_relations is true
+                $lines[] = "export type { {$model->interfaceName}Base, {$model->interfaceName}, Create{$model->interfaceName}Payload, Update{$model->interfaceName}Payload } from './{$file}';";
+            } else {
+                // Export only Base interface when include_relations is false
+                $lines[] = "export type { {$model->interfaceName}Base, Create{$model->interfaceName}Payload, Update{$model->interfaceName}Payload } from './{$file}';";
+            }
         }
 
         if ((bool) config('typegen.generate_helpers', true)) {

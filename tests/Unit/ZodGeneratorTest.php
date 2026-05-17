@@ -15,20 +15,23 @@ it('generates zod schema for a simple model', function () {
         'user.ts',
     );
 
-    $model->fields[] = new FieldMetadata('id', 'number', false, true, false);
-    $model->fields[] = new FieldMetadata('name', 'string', false, false, false);
-    $model->fields[] = new FieldMetadata('email', 'string', false, false, false);
+    $model->fields[] = new FieldMetadata('id', 'number', false, true, false, null, null, true);
+    $model->fields[] = new FieldMetadata('name', 'string', false, false, false, 1, 255, false);
+    $model->fields[] = new FieldMetadata('email', 'string', false, false, false, 1, 255, false);
 
     $generator = new ZodGenerator('/tmp/types', false, false);
     $files = $generator->generate([$model]);
 
     expect($files)->toHaveCount(1);
     expect($files['/tmp/types/user.zod.ts'])->toContain('import { z } from \'zod\'');
-    expect($files['/tmp/types/user.zod.ts'])->toContain('export const UserSchema = z.object({');
-    expect($files['/tmp/types/user.zod.ts'])->toContain('id: z.number(),');
-    expect($files['/tmp/types/user.zod.ts'])->toContain('name: z.string(),');
-    expect($files['/tmp/types/user.zod.ts'])->toContain('email: z.string(),');
-    expect($files['/tmp/types/user.zod.ts'])->toContain('export type User = z.infer<typeof UserSchema>;');
+    expect($files['/tmp/types/user.zod.ts'])->toContain('const RawUserSchema = z.object({');
+    expect($files['/tmp/types/user.zod.ts'])->toContain('export const CreateUserSchema = RawUserSchema.omit({ id: true });');
+    expect($files['/tmp/types/user.zod.ts'])->toContain('export const UpdateUserSchema = CreateUserSchema.partial();');
+    expect($files['/tmp/types/user.zod.ts'])->toContain('export const UserSchema = RawUserSchema as z.ZodType<UserBase>;');
+    expect($files['/tmp/types/user.zod.ts'])->toContain('export type User = UserBase;');
+    expect($files['/tmp/types/user.zod.ts'])->toContain('id: z.number().int().positive(),');
+    expect($files['/tmp/types/user.zod.ts'])->toContain('name: z.string().min(1).max(255),');
+    expect($files['/tmp/types/user.zod.ts'])->toContain('email: z.string().min(1).max(255),');
 });
 
 it('handles nullable fields', function () {
@@ -194,11 +197,13 @@ it('generates CreateSchema and UpdateSchema', function () {
 
     $model->fields[] = new FieldMetadata('id', 'number', false, true, false);
     $model->fields[] = new FieldMetadata('name', 'string', false, false, false);
+    $model->fields[] = new FieldMetadata('created_at', 'string', false, false, false);
+    $model->fields[] = new FieldMetadata('updated_at', 'string', false, false, false);
 
     $generator = new ZodGenerator('/tmp/types', false, false);
     $files = $generator->generate([$model]);
 
-    expect($files['/tmp/types/user.zod.ts'])->toContain('export const CreateUserSchema = UserSchema.omit({ id: true, created_at: true, updated_at: true, deleted_at: true });');
+    expect($files['/tmp/types/user.zod.ts'])->toContain('export const CreateUserSchema = RawUserSchema.omit({ id: true, created_at: true, updated_at: true });');
     expect($files['/tmp/types/user.zod.ts'])->toContain('export const UpdateUserSchema = CreateUserSchema.partial();');
 });
 
@@ -213,7 +218,7 @@ it('generates relation imports for related models', function () {
     $files = $generator->generate([$user, $post]);
 
     expect($files['/tmp/types/user.zod.ts'])->toContain("import { PostSchema } from './post.zod';");
-    expect($files['/tmp/types/user.zod.ts'])->toContain('posts: z.array(z.lazy(() => PostSchema)).optional(),');
+    expect($files['/tmp/types/user.zod.ts'])->toContain('posts: z.array(z.lazy(() => PostSchema) as z.ZodType<Post>) as z.ZodType<Post[] | undefined>,');
 });
 
 it('uses z.lazy for single relations to handle circular references', function () {
@@ -226,7 +231,7 @@ it('uses z.lazy for single relations to handle circular references', function ()
     $generator = new ZodGenerator('/tmp/types', true, false);
     $files = $generator->generate([$user, $post]);
 
-    expect($files['/tmp/types/user.zod.ts'])->toContain('profile: z.lazy(() => PostSchema).optional(),');
+    expect($files['/tmp/types/user.zod.ts'])->toContain('profile: z.lazy(() => PostSchema).nullable() as z.ZodType<Post | null | undefined>,');
 });
 
 it('skips self-referential relation imports', function () {
@@ -239,7 +244,7 @@ it('skips self-referential relation imports', function () {
     $files = $generator->generate([$quote]);
 
     expect($files['/tmp/types/quote.zod.ts'])->not->toContain('import { QuoteSchema } from');
-    expect($files['/tmp/types/quote.zod.ts'])->toContain('parentQuote: z.lazy(() => QuoteSchema).optional(),');
+    expect($files['/tmp/types/quote.zod.ts'])->toContain('parentQuote: z.lazy(() => QuoteSchema).nullable() as z.ZodType<Quote | null | undefined>,');
 });
 
 it('handles unknown[] type', function () {
